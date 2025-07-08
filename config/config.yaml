@@ -1,0 +1,21 @@
+lumerical_path: "C:\\Program Files\\Lumerical\\"
+ansys_path: "C:\\Program Files\\ANSYS Inc\\"
+api_path: "\\api\\python\\"
+ansys_api_path: "\\Lumerical\\api\\python\\"
+versions:
+  - v222
+  - v231
+  - v232
+  - v233
+  - v241
+  - v242
+  - v243
+  - v251
+  - v252
+  - v253
+  - v254
+file_names:
+  fde: "wg_crosssection.lms"
+  overlap: "overlap.pkl"
+  neff: "neff.pkl"
+  te_pol: "TE_pol.pkl"
