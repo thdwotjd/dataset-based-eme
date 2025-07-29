@@ -15,7 +15,7 @@ if not ray.is_initialized():
     ray.init(ignore_reinit_error=True,
              runtime_env={
             "working_dir" : em_simulator_path,
-            "excludes" : [".git/", "sample_datasets"]
+            "excludes" : [".git/", "sample_datasets", "examples"]
             }
     )
 
