@@ -29,6 +29,29 @@ class SingleWaveguide(Geometry, metaclass=abc.ABCMeta):
     
     
     def calc_simulation_parameters(self):
+        """
+        Calculates the list of simulation parameter points along a geometric trajectory
+        and the physical distances between them.
+
+        This method is intended to be used in a class hierarchy. It relies on the
+        `_parametrized_function()` method, which must be implemented by a subclass.
+        The child class defines how key geometric parameters (e.g., top width,
+        curvature, propagation angle) vary along the propagation axis.
+
+        The method evaluates the parameter functions over the total propagation
+        length, discretizes them according to a predefined grid (as specified in
+        `dataset_info.py`), and generates a list of parameter-space tuples
+        corresponding to the dataset grid. These tuples represent simulation points.
+        Additionally, the physical spacing (in meters) between adjacent simulation
+        points is computed.
+
+        Returns:
+            simulation_parameters (List[Tuple[float]]): A list of parameter tuples
+                corresponding to the dataset grid. Each tuple defines a point in the
+                parameter space (e.g., top_width, curvature, rotation_angle).
+            delta_zs (np.ndarray): An array of physical distances (in meters)
+                between adjacent simulation parameter points.
+        """
         top_width_function, curvature_function, prop_angle_function = self._parametrized_function()
         self._width_function = top_width_function
         self._curvature_function = curvature_function

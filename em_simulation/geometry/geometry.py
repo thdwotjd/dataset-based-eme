@@ -22,12 +22,23 @@ class Geometry():
 
     
     def calc_output_data(self):
+        """
+        Computes and returns the output data for the Propagator class.
+
+        This method is designed to be used in a class hierarchy. It calls 
+        `calc_simulation_parameters()`, which must be implemented by a subclass. 
+        The method retrieves simulation parameters, gathers and processes 
+        modal data, and packages everything into a dictionary
+
+        Returns:
+            dict: A dictionary containing simulation data such as neff, overlap matrices,
+                beta values, and mode tracking information.
+        """
         # calculate simulation parameter and update datset
         simul_params, delta_zs = self.calc_simulation_parameters()
         delta_zs = np.array(delta_zs) # wrap the list into np array
         self.simulation_parameters = simul_params
         extended_simul_params, additional_param_dict = self.get_extended_simul_params(simul_params)
-        # self.update_dataset(simul_params)
         self.update_dataset(extended_simul_params)
 
         # get data from dataset
