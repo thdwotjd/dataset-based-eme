@@ -11,22 +11,13 @@ class SingleEME(Propagator):
     The simulation algorithm basically follows the thesis "P. Bienstman, “Rigorous and efficient modelling of wavelenght scale photonic components / Peter Bienstman.,” 2001."
     To see the detail of the mathematical backgorund and terms, see chater2 of the thesis. 
     """
-    def __init__(self, geometry:Geometry, force_passive = False, force_unitary = False, is_test_mode = False):
+    def __init__(self, geometry:Geometry, force_passive = False, force_unitary = False):
         super().__init__(geometry, force_passive=force_passive, force_unitary=force_unitary)
-        # path = self.output_data["path"]
-        # delta_zs = self.output_data["delta_zs"]
-        # eme_path, delta_zs = self.interp_multi_adj_pts(path, delta_zs)
-        # self.overlap_forward_ab, self.overlap_forward_ba =\   # overlap, neff, TE_pol are all ndarray not dict
-        #       self.overlap_dict2ndarray(eme_path, self.output_data["overlap_ab"], self.output_data["overlap_ba"] )
-        # self.beta_forward = self.dict2ndarray
 
-        # additional_param_dict = self.output_data["additional_param_dict"]
 
         self.overlap_forward_ab = self.output_data["overlap_ab"][:,:self.mode_count, :self.mode_count]
         self.overlap_forward_ba = self.output_data["overlap_ba"][:,:self.mode_count, :self.mode_count]
         self.beta_forward = self.output_data["beta"][:,:self.mode_count]
-        if is_test_mode:
-            self.beta_forward = self.output_data["beta"][:,:self.mode_count].real
 
         self._interface_Tmatrix = None  # ndarray with shape (self.section_count - 1, 2 * self.mode_count, 2 * self.mode_count)
 

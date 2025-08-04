@@ -2,7 +2,7 @@ from ...geometry.composite_geometry import CompositeGeometry
 from .multi_propagator import MultiPropagator
 
 class MultiEME(MultiPropagator):
-    def __init__(self, composite_geometry:CompositeGeometry, force_passive = False,force_unitary = False, is_test_mode = False):
+    def __init__(self, composite_geometry:CompositeGeometry, force_passive = False,force_unitary = False): #, is_test_mode = False):
         super().__init__(composite_geometry, force_passive=force_passive, force_unitar=force_unitary)
         
         # initialize EMEs
@@ -10,7 +10,7 @@ class MultiEME(MultiPropagator):
         propagators = []
         from ..single_propagator.single_eme import SingleEME
         for geometry in geometries:
-            eme = SingleEME(geometry, force_passive, force_unitary, is_test_mode)
+            eme = SingleEME(geometry, force_passive, force_unitary) #, is_test_mode)
             propagators.append(eme)
         # multieme parameters
         self.propagators = propagators
