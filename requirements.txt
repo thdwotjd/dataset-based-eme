@@ -1,6 +1,22 @@
-matplotlib==3.10.3
-numpy==2.3.1
-PyYAML==6.0.2
+# requirements.txt
+# Core numerical and scientific libraries
+numpy>=1.26.4
+scipy>=1.16.1
+
+# Plotting and visualization
+matplotlib==3.9.0
+
+# File and data handling
+pillow==10.3.0
+pyyaml==6.0.1
+
+
+# Optimization and computation tools
 ray==2.37.0
-scipy==1.16.0
+
+# Logging and utilities
 tqdm==4.66.5
+
+# Optional: notebooks and interactive tools (for examples/tutorials)
+ipywidgets==8.1.7
+jupyterlab-widgets==3.0.15
