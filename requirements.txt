@@ -18,5 +18,6 @@ ray==2.37.0
 tqdm==4.66.5
 
 # Optional: notebooks and interactive tools (for examples/tutorials)
+ipykernel>=6.29.0
 ipywidgets==8.1.7
 jupyterlab-widgets==3.0.15
