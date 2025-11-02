@@ -21,3 +21,6 @@ tqdm==4.66.5
 ipykernel>=6.29.0
 ipywidgets==8.1.7
 jupyterlab-widgets==3.0.15
+
+# Documentation generation (for building docs)
+sphinx==8.2.3
