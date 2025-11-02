@@ -166,6 +166,15 @@ class SingleWaveguide(Geometry, metaclass=abc.ABCMeta):
     
     #region plot
     def plot_structure_parameters(self, resolution = 500):
+        """Plot ideal versus discretized geometric parameters.
+
+        :param resolution: Number of points used to sample the continuous
+            parameter functions for comparison plots.
+        :type resolution: int
+        :returns: Dictionary containing sampled propagation lengths, widths,
+            curvatures, and (when available) propagation angles.
+        :rtype: dict
+        """
         return_values = dict()
         simul_params, delta_zs = self.calc_simulation_parameters()
         prop_lengths = np.insert(np.cumsum(delta_zs), 0, [0])
@@ -233,6 +242,12 @@ class SingleWaveguide(Geometry, metaclass=abc.ABCMeta):
         return return_values
     
     def plot_2D_structure(self):
+        """Render a 2D outline of the waveguide geometry.
+
+        :returns: Tuple of arrays containing the x and y coordinates of the
+            structure boundary.
+        :rtype: tuple[np.ndarray, np.ndarray]
+        """
         x, y = self._calc_xy()
         prop_lengths = self._compute_length(x, y)
 

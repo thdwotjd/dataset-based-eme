@@ -7,6 +7,22 @@ from .single_waveguide import SingleWaveguide
 
 class SingleBezierCurve(SingleWaveguide, BezierCurve):
     def __init__(self, dataset: DataUpdater, top_width, control_points, resolution=1000, limit_mode_number = 0):
+        """Create a single waveguide segment defined by a Bézier centerline.
+
+        :param dataset: Precomputed modal dataset supplying overlap and effective
+            index information.
+        :type dataset: DataUpdater
+        :param top_width: Waveguide top width in meters.
+        :type top_width: float
+        :param control_points: Ordered Bézier control points describing the bend
+            geometry.
+        :type control_points: array-like
+        :param resolution: Number of discretization samples along the curve.
+        :type resolution: int
+        :param limit_mode_number: Maximum number of modes to include when
+            querying the dataset (``0`` uses all available modes).
+        :type limit_mode_number: int
+        """
         SingleWaveguide.__init__(self, dataset, limit_mode_number= limit_mode_number)
         BezierCurve.__init__(self, control_points, resolution=resolution)
         self._top_width = top_width

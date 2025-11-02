@@ -13,17 +13,29 @@ class SingleLinearTaperEulerBend(SingleWaveguide, PartialEulerBend):
 
     # def __init__(self, dataset: DataUpdater, top_width_input, top_width_output, input_angle_deg, effective_radius, bend_angle_deg, p, resolution=1000, limit_mode_number=0):
     def __init__(self, dataset: DataUpdater, **params):
-        """
-        Parameters:
-            - dataset
-            - top_width_input
-            - top_width_output
-            - input_angle_deg
-            - bend_angle_deg
-            - effective_radius
-            - p
-            - resolution
-            - limit_mode_number
+        """Create a tapering waveguide that transitions through an Euler bend.
+
+        :param dataset: Modal dataset used to retrieve overlap and neff data.
+        :type dataset: DataUpdater
+        :keyword top_width_input: Waveguide width at the bend entrance (meters).
+        :type top_width_input: float
+        :keyword top_width_output: Waveguide width at the bend exit (meters).
+        :type top_width_output: float
+        :keyword input_angle_deg: Launch angle entering the bend in degrees.
+        :type input_angle_deg: float
+        :keyword bend_angle_deg: Total bend angle in degrees.
+        :type bend_angle_deg: float
+        :keyword effective_radius: Effective Euler bend radius in meters.
+        :type effective_radius: float
+        :keyword p: Euler bend shape parameter controlling curvature variation.
+        :type p: float
+        :keyword resolution: Number of discretization points along the bend
+            (defaults to ``1000``).
+        :type resolution: int, optional
+        :keyword limit_mode_number: Maximum number of modes to include in the
+            simulation (defaults to ``0`` to use all modes).
+        :type limit_mode_number: int, optional
+        :raises ValueError: If any required keyword argument is missing.
         """
         # Access parameters using dictionary keys
         top_width_input = params.get('top_width_input')

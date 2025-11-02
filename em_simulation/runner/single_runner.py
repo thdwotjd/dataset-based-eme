@@ -37,9 +37,12 @@ class SingleRunner():
         
     #region main functions
     def propagate(self, input_amplitudes: list):
-        """
-        It propagate scattering matrix and calculate the sectional amplitudes
-        * Note: It clears the existing data including swept data
+        """Propagate through each segment and record sectional amplitudes.
+
+        :param input_amplitudes: Complex amplitudes for the launched modes.
+        :type input_amplitudes: list
+        :returns: Array of forward/backward amplitudes at each section.
+        :rtype: np.ndarray
         """
         input_amplitudes = np.array(input_amplitudes)
         if not self._is_input_amplitudes_okay(input_amplitudes): return
@@ -63,6 +66,15 @@ class SingleRunner():
     
     
     def plot_intensity_along_propagation(self, show_radiation_mode = False, mode_nums = None):
+        """Plot normalized intensities along the propagation path.
+
+        :param show_radiation_mode: Include radiation modes when ``True``.
+        :type show_radiation_mode: bool
+        :param mode_nums: Optional subset of mode indices to display.
+        :type mode_nums: list or None
+        :returns: Dictionary with propagation lengths and intensity traces.
+        :rtype: dict
+        """
         if not self._is_sectional_amplitudes_calculated:
             print("Propagate the simulation first. Use propagate(input_amplitudes) method")
             return
@@ -168,9 +180,18 @@ class SingleRunner():
         return return_values
     
     def sweep_geometry_length(self, length_1, length_2, num_points, show_radiation_mode = False):
-        """
-        It sweeps from length_1 to length_2 with num_points and plots output intensities
-        This function is only valid for straight structure
+        """Sweep structure length and evaluate and plot output intensities.
+
+        :param length_1: Starting structure length in meters.
+        :type length_1: float
+        :param length_2: Ending structure length in meters.
+        :type length_2: float
+        :param num_points: Number of sweep samples.
+        :type num_points: int
+        :param show_radiation_mode: Include radiation modes when ``True``.
+        :type show_radiation_mode: bool
+        :returns: Tuple of sweep lengths and intensities per mode.
+        :rtype: tuple[np.ndarray, np.ndarray]
         """
         input_amplitudes = deepcopy(self.input_amplitudes)
         output_amplitudes_swept = np.zeros(shape=(num_points, 2*self._mode_count), dtype=np.complex64)
@@ -224,6 +245,13 @@ class SingleRunner():
         plt.title("Output Intensities vs. Structure Length")
 
     def propagate_lumped_smatrix(self, input_amplitudes: list):
+        """Apply the lumped scattering matrix to the given input amplitudes.
+
+        :param input_amplitudes: Complex amplitudes for the launched modes.
+        :type input_amplitudes: list
+        :returns: Output amplitudes after the lumped matrix.
+        :rtype: np.ndarray
+        """
         if not self._is_lumped_smatrix_calculated:
             smatrix = deepcopy(self._smatrix)
             length = self._smatrix.shape[0]

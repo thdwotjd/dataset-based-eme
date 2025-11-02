@@ -7,6 +7,22 @@ from ..single_waveguide import SingleWaveguide
 
 class LinearTaper(SingleWaveguide):
     def __init__(self, dataset: DataUpdater, input_width, output_width, length, prop_angle = 0, limit_mode_number = 0):
+        """Create a straight linear taper between two waveguide widths.
+
+        :param dataset: Modal dataset providing overlap and neff information.
+        :type dataset: DataUpdater
+        :param input_width: Width at the taper entrance in meters.
+        :type input_width: float
+        :param output_width: Width at the taper exit in meters.
+        :type output_width: float
+        :param length: Physical taper length in meters.
+        :type length: float
+        :param prop_angle: Propagation angle referenced to the optic axis.
+        :type prop_angle: float
+        :param limit_mode_number: Maximum number of modes to retrieve from the
+            dataset (``0`` uses all available modes).
+        :type limit_mode_number: int
+        """
         self._input_width = input_width
         self._output_width = output_width
         self._total_length = length

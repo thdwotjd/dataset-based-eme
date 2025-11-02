@@ -6,6 +6,28 @@ from ..single_waveguide import SingleWaveguide
 
 class CustomTaper(SingleWaveguide):
     def __init__(self, dataset: DataUpdater, length, num_sections, width_list, prop_angle = 0, resolution = 3000, limit_mode_number = 0, verbose = True):
+        """Create a piecewise-linear taper with user-defined section widths. Widths in width_list are corresponding to equally spaced sections along the taper length.
+
+        :param dataset: Modal dataset supplying overlap and effective index
+            information.
+        :type dataset: DataUpdater
+        :param length: Total taper length in meters.
+        :type length: float
+        :param num_sections: Number of discrete sections describing the taper.
+        :type num_sections: int
+        :param width_list: Sequence of waveguide widths applied to each section.
+        :type width_list: array-like
+        :param prop_angle: Propagation angle relative to the reference axis in
+            degrees.
+        :type prop_angle: float
+        :param resolution: Number of samples used by the parent waveguide class.
+        :type resolution: int
+        :param limit_mode_number: Maximum number of modes retrieved from the
+            dataset (``0`` uses all available modes).
+        :type limit_mode_number: int
+        :param verbose: Emit diagnostic messages when ``True``.
+        :type verbose: bool
+        """
         SingleWaveguide.__init__(self, dataset, limit_mode_number= limit_mode_number, resolution=resolution, verbose=verbose)
         self._total_length = length
         self._prop_angle = prop_angle

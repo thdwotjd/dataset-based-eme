@@ -10,6 +10,30 @@ from ..single_waveguide import SingleWaveguide
 
 class SingleCustomBend(SingleWaveguide):
     def __init__(self, dataset: DataUpdater, prop_len_list, width_list, curvature_list, input_angle = 0, resolution = 3000, limit_mode_number = 0, verbose = True):
+        """Create a custom bent waveguide using user-specified profiles.
+
+        :param dataset: Modal dataset providing overlap and effective index
+            information.
+        :type dataset: DataUpdater
+        :param prop_len_list: Monotonically increasing propagation lengths that
+            parameterize the curve.
+        :type prop_len_list: array-like
+        :param width_list: Waveguide widths corresponding to each propagation
+            length.
+        :type width_list: array-like
+        :param curvature_list: Local curvature values along the propagation
+            length.
+        :type curvature_list: array-like
+        :param input_angle: Initial propagation angle in radians.
+        :type input_angle: float
+        :param resolution: Number of samples used by the parent waveguide class.
+        :type resolution: int
+        :param limit_mode_number: Maximum number of modes retrieved from the
+            dataset (``0`` uses all available modes).
+        :type limit_mode_number: int
+        :param verbose: Emit diagnostic logging when ``True``.
+        :type verbose: bool
+        """
         if len(prop_len_list) != len(width_list) or len(width_list) != len(curvature_list):
             print("prop_len_list, width_list, and curvature_list should have same length")
         SingleWaveguide.__init__(self, dataset, limit_mode_number= limit_mode_number, resolution=resolution, verbose=verbose)

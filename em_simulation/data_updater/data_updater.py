@@ -61,20 +61,39 @@ class TestModeError(Exception):
     pass
 
 class DataUpdater:
-    """
-    Dataset dictionary structures:
-        - overlap: {
-            keys: parameter point (tuple ordered by ordering of datainfo.parameter_names)
-            values: dictionary 
-                {
-                key: adj parameter point, 
-                value : ndarray of <E(prameter point),H(adj_point)> (ndarray with shape (mode_numbers, mode_numbers))
-                }
-            }
-        - neff: {keys: parameter point, value: neffs of ndarray with shape (mode_numbers,)}
-        - TE_pol: {keys: parameter point, value: TE_plaraization fraction of ndarray with shape (mode_numbers,)}
+    """Update and retrieve precomputed electromagnetic datasets.
+
+    The updater wraps the Lumerical/ANSYS MODE API to populate a set of
+    pickled dictionaries produced during dataset acquisition. The dictionaries
+    follow the structure below:
+
+    - ``overlap``: maps a parameter point (ordered tuple of parameter values)
+      to a dictionary where each key is an adjacent parameter point and each
+      value is the complex overlap matrix
+      :math:`\\langle E_{\\text{point}}, H_{\\text{adj}} \\rangle` with shape
+      ``(mode_numbers, mode_numbers)``.
+    - ``neff``: maps a parameter point to a complex array of effective indices
+      with shape ``(mode_numbers,)``.
+    - ``TE_pol``: maps a parameter point to the TE polarization fraction with
+      shape ``(mode_numbers,)``.
+
+    :param data_directory: Path that contains the dataset assets and
+        ``dataset_info.py`` module.
+    :type data_directory: str
+    :param is_testmode: Disables MODE API calls when ``True`` so the class can
+        be instantiated in unit tests.
+    :type is_testmode: bool
     """
     def __init__(self, data_directory, is_testmode = False):
+        """Build the updater and load dataset metadata.
+
+        :param data_directory: Directory containing the FDE workspace and
+            cached pickle files.
+        :type data_directory: str
+        :param is_testmode: Skip calls into MODE so tests can operate without
+            the external dependency.
+        :type is_testmode: bool
+        """
         self.data_directory = data_directory
         self._is_testmode = is_testmode
         
@@ -175,10 +194,15 @@ class DataUpdater:
         return
     
     def populate_dataframe(self, parameter_names, parameter_ranges):
-        """
-        parameter_names: list of str
-        parameter_ranges: list of list which min, max values of the parameter
-            e.g) [[0, 50000], [1e-6, 1.5e-6]]
+        """Compute data for all points spanned by the given parameter ranges.
+
+        :param parameter_names: Names of the parameters that define the sweep.
+        :type parameter_names: list[str]
+        :param parameter_ranges: Inclusive ``[min, max]`` bounds for each
+            parameter. Bounds are mapped onto the discrete grid in the dataset.
+        :type parameter_ranges: list[list[float]]
+        :returns: ``None``. Prompts the user for confirmation before running.
+        :rtype: None
         """
         parameter_names_ref = self.get_parameter_names()
         parameter_grid = self.get_parameter_grid()
@@ -398,25 +422,25 @@ class DataUpdater:
     #region get simple data from dataset
     def get_parameter_grid(self):
         return self.data_info.get_parameter_grid()
-    
+
     def get_parameter_names(self):
         return self.data_info.get_parameter_names()
-    
+
     def get_parameter_types(self):
         return self.data_info.get_parameter_types()
-    
+
     def get_mode_numbers(self):
         return self.data_info.get_mode_numbers()
-    
+
     def get_crosssection_x(self):
         return self.data_info.get_crosssection_x()
-    
+
     def get_crosssection_y(self):
         return self.data_info.get_crosssection_y()
-    
+
     def get_wavelength(self):
         return self.data_info.get_wavelength()
-    
+
     def get_cladding_index(self):
         return self.data_info.get_cladding_index()
     

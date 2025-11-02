@@ -22,17 +22,17 @@ class Geometry():
 
     
     def calc_output_data(self):
-        """
-        Computes and returns the output data for the Propagator class.
+        """Assemble modal data required by the propagator workflow.
 
-        This method is designed to be used in a class hierarchy. It calls 
-        `calc_simulation_parameters()`, which must be implemented by a subclass. 
-        The method retrieves simulation parameters, gathers and processes 
-        modal data, and packages everything into a dictionary
+        The method calls :meth:`calc_simulation_parameters`, which must be
+        implemented by subclasses, pulls the necessary overlap and effective
+        index information from the dataset, performs mode-order tracking, and
+        stores the result on ``self.output_data``.
 
-        Returns:
-            dict: A dictionary containing simulation data such as neff, overlap matrices,
-                beta values, and mode tracking information.
+        :returns: Dictionary containing overlap matrices, propagation steps,
+            effective indices, propagation constants, radiation masks, mode
+            names, and additional overlap corrections.
+        :rtype: dict
         """
         # calculate simulation parameter and update datset
         simul_params, delta_zs = self.calc_simulation_parameters()
@@ -112,8 +112,11 @@ class Geometry():
     
     #region plots
     def plot_neffs(self, show_radiation_mode = False):
-        """
-        It plots the neffs along the propagation
+        """Plot real effective indices along the propagation path.
+
+        :param show_radiation_mode: When ``True`` include radiation modes in the
+            plot; otherwise they are omitted.
+        :type show_radiation_mode: bool
         """
         if self.output_data == None:
             self.calc_output_data()
@@ -144,8 +147,11 @@ class Geometry():
     
 
     def plot_TE_polarization_fraction(self, show_radiation_mode = False):
-        """
-        It plots the neffs along the propagation
+        """Plot the TE polarization fraction along the propagation path.
+
+        :param show_radiation_mode: When ``True`` include radiation modes in the
+            plot; otherwise they are omitted.
+        :type show_radiation_mode: bool
         """
         if self.output_data == None:
             self.calc_output_data()

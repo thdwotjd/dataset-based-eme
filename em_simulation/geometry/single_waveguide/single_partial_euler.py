@@ -28,6 +28,27 @@ class SinglePartialEuler(SingleWaveguide, PartialEulerCurve):
 # class SingleEuler(SingleWaveguide, Euler):
 class SingleEuler(SingleWaveguide, PartialEulerBend):
     def __init__(self, dataset: DataUpdater, top_width, input_angle_deg, effective_radius, bend_angle_deg, p, resolution=1000, limit_mode_number=0):
+        """Create a single waveguide with a partial-Euler bend profile.
+
+        :param dataset: Precomputed modal dataset used to retrieve overlap and
+            effective-index information.
+        :type dataset: DataUpdater
+        :param top_width: Waveguide top width in meters.
+        :type top_width: float
+        :param input_angle_deg: Launch angle of the bend in degrees.
+        :type input_angle_deg: float
+        :param effective_radius: Effective Euler bend radius in meters.
+        :type effective_radius: float
+        :param bend_angle_deg: Total bend angle across the segment in degrees.
+        :type bend_angle_deg: float
+        :param p: Partial Euler curve shape parameter controlling Euler spiral portion.
+        :type p: float
+        :param resolution: Number of discretization points along the bend.
+        :type resolution: int
+        :param limit_mode_number: Maximum number of modes to include in the
+            simulation (``0`` uses all available modes).
+        :type limit_mode_number: int
+        """
         SingleWaveguide.__init__(self, dataset, limit_mode_number= limit_mode_number)
         PartialEulerBend.__init__(self,p,input_angle_deg, bend_angle_deg, effective_radius, resolution)
         self._top_width = top_width
