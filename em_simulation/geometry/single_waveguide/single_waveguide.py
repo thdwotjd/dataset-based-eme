@@ -320,14 +320,14 @@ class SingleWaveguide(Geometry, metaclass=abc.ABCMeta):
     @staticmethod
     def _compute_length(xs, ys):
         # Compute first derivatives
-        dx = np.gradient(xs)
-        dy = np.gradient(ys)
+        dx = np.diff(xs)
+        dy = np.diff(ys)
 
         # Calculate incremental distances between points
         distances = np.sqrt(dx**2 + dy**2)
         
         # Compute cumulative length (propagation length)
-        length = np.cumsum(distances)
+        length = np.concatenate(([0.0], np.cumsum(distances)))
         
         return length
     #endregion plot
