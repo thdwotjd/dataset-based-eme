@@ -4,6 +4,7 @@ from itertools import product
 from copy import deepcopy
 import gc
 import os
+import warnings
 import yaml
 
 import numpy as np
@@ -59,6 +60,11 @@ if not is_import_api:
 # ray.init(object_store_memory=2e9, ignore_reinit_error=True)
 class TestModeError(Exception):
     pass
+
+
+class SweepFieldAggregationError(RuntimeError):
+    """Raised when an aggregated Lumerical sweep field is malformed."""
+
 
 class DataUpdater:
     """Update and retrieve precomputed electromagnetic datasets.
@@ -787,6 +793,219 @@ class DataUpdater:
     def run_FDE_sweep(self):
         self.mode.runsweep("sweep")
 
+    @staticmethod
+    def _validate_compatible_field_grid(reference, candidate, axis_name, source, atol=1e-15):
+        """Validate that two field grids differ only by negligible roundoff."""
+        reference = np.asarray(reference).squeeze()
+        candidate = np.asarray(candidate).squeeze()
+
+        if reference.ndim != 1 or candidate.ndim != 1:
+            raise SweepFieldAggregationError(
+                f"Sweep field coordinate '{axis_name}' must be one-dimensional; "
+                f"reference shape={reference.shape}, candidate shape={candidate.shape}, "
+                f"source='{source}'"
+            )
+        if reference.shape != candidate.shape:
+            raise SweepFieldAggregationError(
+                f"Sweep field coordinate '{axis_name}' has incompatible shapes; "
+                f"reference shape={reference.shape}, candidate shape={candidate.shape}, "
+                f"source='{source}'"
+            )
+        if not np.all(np.isfinite(reference)) or not np.all(np.isfinite(candidate)):
+            raise SweepFieldAggregationError(
+                f"Sweep field coordinate '{axis_name}' contains non-finite values; "
+                f"source='{source}'"
+            )
+
+        max_difference = float(np.max(np.abs(reference - candidate))) if reference.size else 0.0
+        if not np.allclose(reference, candidate, rtol=0.0, atol=atol):
+            raise SweepFieldAggregationError(
+                f"Sweep field coordinate '{axis_name}' differs by more than the allowed "
+                f"tolerance; max difference={max_difference:.6e} m, atol={atol:.6e} m, "
+                f"source='{source}'"
+            )
+        return max_difference
+
+    @staticmethod
+    def _reshape_individual_field(field, expected_shape, field_name, mode_index, source):
+        """Convert one child-file field to (3, len(x), len(y))."""
+        field = np.squeeze(np.asarray(field))
+        if field.ndim != 3 or field.shape[-1] != 3:
+            raise SweepFieldAggregationError(
+                f"Individual {field_name} field has an unexpected shape for mode "
+                f"{mode_index}; shape={field.shape}, source='{source}'"
+            )
+        field = np.moveaxis(field, -1, 0)
+        if field.shape != expected_shape:
+            raise SweepFieldAggregationError(
+                f"Individual {field_name} field has an incompatible grid for mode "
+                f"{mode_index}; expected shape={expected_shape}, actual shape={field.shape}, "
+                f"source='{source}'"
+            )
+        return field
+
+    def _extract_aggregated_sweep_fields(self, number_of_points):
+        """Read E/H fields through Lumerical's normal aggregated sweep result."""
+        x = np.asarray(
+            self.mode.getsweepresult("sweep", "x")[self.crosssection_x]
+        )[:, 0]
+        y = np.asarray(
+            self.mode.getsweepresult("sweep", "y")[self.crosssection_y]
+        )[:, 0]
+
+        field_shape = (
+            number_of_points,
+            2*self.mode_numbers,
+            3,
+            len(x),
+            len(y),
+        )
+        Efield = np.zeros(shape=field_shape, dtype=np.complex64)
+        Hfield = np.zeros(shape=field_shape, dtype=np.complex64)
+        expected_forward_shape = (number_of_points, 3, len(x), len(y))
+
+        for i in range(self.mode_numbers):
+            mode_index = i + 1
+            E_result = self.mode.getsweepresult("sweep", f"mode{mode_index}_E")
+            H_result = self.mode.getsweepresult("sweep", f"mode{mode_index}_H")
+            if "E" not in E_result or "H" not in H_result:
+                missing = "E" if "E" not in E_result else "H"
+                raise SweepFieldAggregationError(
+                    f"Aggregated sweep result for mode {mode_index} does not contain "
+                    f"'{missing}'"
+                )
+
+            E = np.squeeze(np.asarray(E_result["E"]))
+            H = np.squeeze(np.asarray(H_result["H"]))
+            try:
+                E = E.transpose(2, 3, 0, 1)
+                H = H.transpose(2, 3, 0, 1)
+            except ValueError as error:
+                raise SweepFieldAggregationError(
+                    f"Aggregated sweep field has an unexpected dimension for mode "
+                    f"{mode_index}; E shape={E.shape}, H shape={H.shape}"
+                ) from error
+            if E.shape != expected_forward_shape or H.shape != expected_forward_shape:
+                raise SweepFieldAggregationError(
+                    f"Aggregated sweep field has an unexpected shape for mode "
+                    f"{mode_index}; expected={expected_forward_shape}, "
+                    f"E shape={E.shape}, H shape={H.shape}"
+                )
+            Efield[:, i] = E
+            Hfield[:, i] = H
+
+        return Efield, Hfield, x, y
+
+    def _extract_individual_sweep_fields(self, expected_points, grid_atol=1e-15):
+        """Load fields from sweep_N.lms files when sweep concatenation fails."""
+        number_of_points = len(expected_points)
+        sweep_name = "sweep"
+        sweep_directory = os.path.splitext(self.FDE_file)[0] + f"_{sweep_name}"
+        sweep_files = [
+            os.path.join(sweep_directory, f"{sweep_name}_{i+1}.lms")
+            for i in range(number_of_points)
+        ]
+        missing_files = [path for path in sweep_files if not os.path.isfile(path)]
+        if missing_files:
+            raise SweepFieldAggregationError(
+                "Individual sweep result files were not found: " + ", ".join(missing_files)
+            )
+
+        reader = lumapi.MODE(hide=True)
+        reference_x = None
+        reference_y = None
+        Efield = None
+        Hfield = None
+        max_grid_difference = 0.0
+
+        try:
+            for point_index, sweep_file in enumerate(sweep_files):
+                reader.load(sweep_file)
+                expected_point = expected_points[point_index]
+                for parameter_name, expected_value in zip(
+                    self.parameter_names, expected_point
+                ):
+                    actual_value = np.asarray(
+                        reader.getnamed("::model", parameter_name)
+                    ).squeeze()
+                    if actual_value.size != 1 or not np.isclose(
+                        float(actual_value),
+                        float(expected_value),
+                        rtol=1e-12,
+                        atol=1e-15,
+                    ):
+                        raise SweepFieldAggregationError(
+                            f"Individual sweep result has an unexpected parameter value; "
+                            f"parameter='{parameter_name}', expected={expected_value}, "
+                            f"actual={actual_value}, source='{sweep_file}'"
+                        )
+
+                for i in range(self.mode_numbers):
+                    mode_index = i + 1
+                    E_result = reader.getresult(
+                        f"FDE::data::mode{mode_index}", "E"
+                    )
+                    H_result = reader.getresult(
+                        f"FDE::data::mode{mode_index}", "H"
+                    )
+                    if "E" not in E_result or "H" not in H_result:
+                        missing = "E" if "E" not in E_result else "H"
+                        raise SweepFieldAggregationError(
+                            f"Individual result for mode {mode_index} does not contain "
+                            f"'{missing}'; source='{sweep_file}'"
+                        )
+
+                    E_x = np.asarray(E_result[self.crosssection_x]).squeeze()
+                    E_y = np.asarray(E_result[self.crosssection_y]).squeeze()
+                    H_x = np.asarray(H_result[self.crosssection_x]).squeeze()
+                    H_y = np.asarray(H_result[self.crosssection_y]).squeeze()
+
+                    if reference_x is None:
+                        reference_x = E_x.copy()
+                        reference_y = E_y.copy()
+                        field_shape = (
+                            number_of_points,
+                            2*self.mode_numbers,
+                            3,
+                            len(reference_x),
+                            len(reference_y),
+                        )
+                        Efield = np.zeros(shape=field_shape, dtype=np.complex64)
+                        Hfield = np.zeros(shape=field_shape, dtype=np.complex64)
+
+                    for axis_name, candidate, reference in (
+                        (self.crosssection_x, E_x, reference_x),
+                        (self.crosssection_y, E_y, reference_y),
+                        (self.crosssection_x, H_x, reference_x),
+                        (self.crosssection_y, H_y, reference_y),
+                    ):
+                        difference = self._validate_compatible_field_grid(
+                            reference,
+                            candidate,
+                            axis_name,
+                            f"{sweep_file}, mode {mode_index}",
+                            atol=grid_atol,
+                        )
+                        max_grid_difference = max(max_grid_difference, difference)
+
+                    expected_shape = (3, len(reference_x), len(reference_y))
+                    Efield[point_index, i] = self._reshape_individual_field(
+                        E_result["E"], expected_shape, "E", mode_index, sweep_file
+                    )
+                    Hfield[point_index, i] = self._reshape_individual_field(
+                        H_result["H"], expected_shape, "H", mode_index, sweep_file
+                    )
+        finally:
+            reader.close()
+
+        warnings.warn(
+            "Loaded E/H fields from individual Lumerical sweep files because the "
+            "aggregated field results were unavailable. "
+            f"Maximum accepted grid difference: {max_grid_difference:.6e} m.",
+            RuntimeWarning,
+        )
+        return Efield, Hfield, reference_x, reference_y
+
     def post_process_sweep_data(self, adj_points):
         # extract cross section array
         x = self.mode.getsweepresult("sweep", "x")[self.crosssection_x][:,0]
@@ -830,24 +1049,31 @@ class DataUpdater:
     
 
     def post_process_sweep_data_modified(self, parameter_point, adj_points):
-        # extract cross section array
-        x = self.mode.getsweepresult("sweep", "x")[self.crosssection_x][:,0]
-        y = self.mode.getsweepresult("sweep", "y")[self.crosssection_y][:,0]
-
         # result ndarray initialization
-        neff = np.zeros(shape = (len(adj_points) + 1, 2*self.mode_numbers,), dtype=np.complex64)
-        TE_pol = np.zeros(shape = (len(adj_points) + 1, 2*self.mode_numbers,), dtype=np.float16)
-        Efield = np.zeros(shape = (len(adj_points) + 1, 2*self.mode_numbers, 3, len(x), len(y)), dtype=np.complex64)
-        Hfield = np.zeros(shape = (len(adj_points) + 1, 2*self.mode_numbers, 3, len(x), len(y)), dtype=np.complex64)
+        number_of_points = len(adj_points) + 1
+        neff = np.zeros(shape = (number_of_points, 2*self.mode_numbers,), dtype=np.complex64)
+        TE_pol = np.zeros(shape = (number_of_points, 2*self.mode_numbers,), dtype=np.float16)
         overlaps = dict()
 
-        # extract sweep data
+        # extract scalar sweep data
         for i in range(self.mode_numbers):
             # forward propagating mode
             neff[:,i] = oct.correct_gain_modified(np.squeeze(self.mode.getsweepresult("sweep", "mode" + str(i+1) + "_neff")["neff"])) # first element is parameter point value
             TE_pol[:,i] = np.squeeze(self.mode.getsweepresult("sweep", "mode" + str(i+1) + "_TEpol")["TE polarization fraction"])
-            Efield[:,i] = np.squeeze(self.mode.getsweepresult("sweep", "mode" + str(i+1) + "_E")["E"]).transpose(2,3,0,1)   # (len_x, len_y, num_points, 3) -> (num_points, 3, len_x, len_y)
-            Hfield[:,i] = np.squeeze(self.mode.getsweepresult("sweep", "mode" + str(i+1) + "_H")["H"]).transpose(2,3,0,1)
+
+        try:
+            Efield, Hfield, x, y = self._extract_aggregated_sweep_fields(
+                number_of_points
+            )
+        except (KeyError, SweepFieldAggregationError) as error:
+            warnings.warn(
+                "Lumerical could not provide compatible aggregated E/H sweep "
+                f"results ({error}). Falling back to individual sweep files.",
+                RuntimeWarning,
+            )
+            Efield, Hfield, x, y = self._extract_individual_sweep_fields(
+                [parameter_point] + list(adj_points)
+            )
         
         ## overlaps
         prop_axis = list({"x", "y", "z"} - {self.crosssection_x, self.crosssection_y})[0]
