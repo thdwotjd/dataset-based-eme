@@ -1142,7 +1142,7 @@ class DataUpdater:
     
     #region old vers
     @staticmethod
-    def calc_overlap(Efield, Hfield, x, y, prop_axis):
+    def calc_overlap(Efield, Hfield, x, y, prop_axis, mode_block_size=8):
         def compute_differences(arr):
             # Initialize an empty array with the same length as the input array
             output = np.empty_like(arr)
@@ -1150,29 +1150,70 @@ class DataUpdater:
             output[:-1] = arr[1:] - arr[:-1]
             # Set the last component as the prior component
             output[-1] = output[-2]
-            
+
             return output
-        # Add new axes for broadcasting
-        Efield_expanded = Efield[:, np.newaxis, :, :, :]
-        Hfield_expanded = Hfield[np.newaxis, :, :, :, :]
-        
-        # Compute cross products using broadcasting
-        cross_product = np.cross(Efield_expanded, Hfield_expanded, axis=2)
 
-        # del Efield_expanded
-        del Hfield_expanded
-        gc.collect()
+        Efield = np.asarray(Efield)
+        Hfield = np.asarray(Hfield)
+        x = np.asarray(x)
+        y = np.asarray(y)
 
-        x = compute_differences(x)
-        y = compute_differences(y)
+        if Efield.ndim != 4 or Hfield.ndim != 4:
+            raise ValueError("Efield and Hfield must have shape (modes, 3, len(x), len(y))")
+        if Efield.shape[1] != 3 or Hfield.shape[1] != 3:
+            raise ValueError("Efield and Hfield must contain three vector components")
+        if Efield.shape[2:] != Hfield.shape[2:]:
+            raise ValueError("Efield and Hfield must use the same spatial grid")
+        if Efield.shape[2:] != (len(x), len(y)):
+            raise ValueError("Field dimensions do not match the supplied coordinate arrays")
+        if prop_axis not in (0, 1, 2):
+            raise ValueError("prop_axis must be 0, 1, or 2")
+        if not isinstance(mode_block_size, (int, np.integer)) or mode_block_size <= 0:
+            raise ValueError("mode_block_size must be a positive integer")
 
-        weight_mask = np.outer(x, y)
+        dx = compute_differences(x)
+        dy = compute_differences(y)
+        weight_mask = np.outer(dx, dy)
 
-        # The shape of weight_mask should be the same as func
-        weight_mask_expanded = weight_mask[np.newaxis, np.newaxis,np.newaxis,:,:]
-        
-        overlap = (weight_mask_expanded * cross_product).sum(axis=(3,4))
-        overlap = overlap[:,:,prop_axis]/2
+        # Only the propagation-axis component of E x H contributes. Computing
+        # that component directly avoids the full
+        # (E modes, H modes, 3, len(x), len(y)) broadcasted cross-product.
+        component_a = (prop_axis + 1) % 3
+        component_b = (prop_axis + 2) % 3
+
+        result_dtype = np.result_type(Efield.dtype, Hfield.dtype, weight_mask.dtype)
+        overlap = np.empty(
+            (Efield.shape[0], Hfield.shape[0]),
+            dtype=result_dtype,
+        )
+
+        for E_start in range(0, Efield.shape[0], mode_block_size):
+            E_stop = min(E_start + mode_block_size, Efield.shape[0])
+            E_slice = slice(E_start, E_stop)
+            for H_start in range(0, Hfield.shape[0], mode_block_size):
+                H_stop = min(H_start + mode_block_size, Hfield.shape[0])
+                H_slice = slice(H_start, H_stop)
+
+                # Form the needed cross-product component in the input field
+                # dtype, matching np.cross in the original implementation.
+                cross_component = (
+                    Efield[E_slice, np.newaxis, component_a]
+                    * Hfield[np.newaxis, H_slice, component_b]
+                )
+                cross_component -= (
+                    Efield[E_slice, np.newaxis, component_b]
+                    * Hfield[np.newaxis, H_slice, component_a]
+                )
+
+                overlap_block = np.einsum(
+                    "mnij,ij->mn",
+                    cross_component,
+                    weight_mask,
+                    dtype=result_dtype,
+                    optimize=True,
+                )
+                overlap[E_slice, H_slice] = overlap_block/2
+
         return overlap
     #endregion oldvers
 
