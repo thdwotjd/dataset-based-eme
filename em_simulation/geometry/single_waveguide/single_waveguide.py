@@ -98,6 +98,19 @@ class SingleWaveguide(Geometry, metaclass=abc.ABCMeta):
             propagation_tot, [top_width_values_tot, curvature_values_tot] =\
             self.remove_duplicate_points(propagation_tot, top_width_values_tot, curvature_values_tot)
 
+        # ``scan_and_store`` records only parameter transitions.  When the
+        # snapped parameters are unchanged near the output, the physical end
+        # point is otherwise omitted along with its final propagation phase.
+        # Retain the end point as a repeated section; DataUpdater represents
+        # the overlap between identical parameter points with an identity
+        # matrix.
+        if propagation_tot[-1] < self._total_length:
+            propagation_tot = np.append(propagation_tot, self._total_length)
+            top_width_values_tot = np.append(top_width_values_tot, top_width_values_tot[-1])
+            curvature_values_tot = np.append(curvature_values_tot, curvature_values_tot[-1])
+            if 'rotation_angle' in self.parameter_names:
+                prop_angle_values_tot = np.append(prop_angle_values_tot, prop_angle_values_tot[-1])
+
         # if length between different parameter point is too large, it allows duplicate
         max_interpoint_len = 10e-6
         i = 0
