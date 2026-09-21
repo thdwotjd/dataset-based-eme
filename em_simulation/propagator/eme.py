@@ -4,7 +4,13 @@ from ..propagator.multi_propagator.multi_eme import MultiEME
 from ..propagator.single_propagator.single_eme import SingleEME
 
 class EME(Propagator):
-    def __init__(self, geometry:Geometry, force_passive:bool = False, force_unitary:bool = False):
+    def __init__(
+        self,
+        geometry:Geometry,
+        force_passive:bool = False,
+        force_unitary:bool = False,
+        stability_config=None,
+    ):
         """Instantiate an eigenmode expansion propagator.
 
         :param geometry: Geometry description from which modal data is drawn.
@@ -18,10 +24,14 @@ class EME(Propagator):
         """
         self._is_composite_geometry = geometry._is_composite_geometry
         if self._is_composite_geometry:
-            self.propagator = MultiEME(geometry, force_passive, force_unitary)
+            self.propagator = MultiEME(
+                geometry, force_passive, force_unitary, stability_config
+            )
             self._is_multipropagator = 1
         else:
-            self.propagator = SingleEME(geometry, force_passive, force_unitary)
+            self.propagator = SingleEME(
+                geometry, force_passive, force_unitary, stability_config
+            )
             self._is_multipropagator = 0
     
     def calc_Tmatrix(self):

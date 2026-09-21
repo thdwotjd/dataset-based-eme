@@ -20,6 +20,9 @@ class SingleRunner():
         if not propagator_instance._is_smatrix_calculated:
             propagator_instance.calc_Smatrix()
         self._propagator_instance = propagator_instance
+        self.stability_diagnostics = getattr(
+            propagator_instance, "stability_diagnostics", None
+        )
         self._smatrix = propagator_instance.smatrix
         self._lumped_smatrix = None
         self._mode_count = int(self._smatrix.shape[1]/2)
@@ -33,6 +36,24 @@ class SingleRunner():
         self._is_sectional_amplitudes_calculated = False
         self._is_output_intensities_swept_calculated = False
         self._is_lumped_smatrix_calculated = False
+
+    def _feedback_stability_kwargs(self, matrix_index):
+        """Return mode metadata only for reflective interface combinations."""
+
+        if not isinstance(self._propagator_instance, SingleEME):
+            return {}
+        if matrix_index % 2 == 0:
+            return {}
+        section_index = matrix_index // 2
+        return {
+            "feedback_mode_weights": self._propagator_instance._mode_weights[
+                section_index
+            ],
+            "feedback_mode_present": self._propagator_instance.mode_present[
+                section_index
+            ],
+            "stability_config": self._propagator_instance.stability_config,
+        }
 
         
     #region main functions
@@ -57,7 +78,13 @@ class SingleRunner():
         smatrix = deepcopy(self._smatrix)
         accumulated_smatrix = np.eye(2*self._mode_count)
         for i in range(length):
-            accumulated_smatrix = mct._redheffer_star_product(accumulated_smatrix, smatrix[i])
+            accumulated_smatrix = mct._redheffer_star_product(
+                accumulated_smatrix,
+                smatrix[i],
+                diagnostics=self.stability_diagnostics,
+                context=i,
+                **self._feedback_stability_kwargs(i),
+            )
             sectional_amplitudes[i+1] = accumulated_smatrix @ sectional_amplitudes[0]
         
         self.sectional_amplitudes = deepcopy(sectional_amplitudes)
@@ -202,7 +229,13 @@ class SingleRunner():
             smatrix = self._propagator_instance._find_Smatrix_new_length(sweep_lengths[i])
             smatrix_lumped = smatrix[0]
             for j in range(len(smatrix)-1):
-                smatrix_lumped = mct._redheffer_star_product(smatrix_lumped, smatrix[j+1])           
+                smatrix_lumped = mct._redheffer_star_product(
+                    smatrix_lumped,
+                    smatrix[j+1],
+                    diagnostics=self.stability_diagnostics,
+                    context=j+1,
+                    **self._feedback_stability_kwargs(j+1),
+                )
             Smatrices_swept[i] = smatrix_lumped
 
         for i in range(num_points):
@@ -257,7 +290,13 @@ class SingleRunner():
             length = self._smatrix.shape[0]
             accumulated_smatrix = np.eye(2*self._mode_count)
             for i in range(length):
-                accumulated_smatrix = mct._redheffer_star_product(accumulated_smatrix, smatrix[i])
+                accumulated_smatrix = mct._redheffer_star_product(
+                    accumulated_smatrix,
+                    smatrix[i],
+                    diagnostics=self.stability_diagnostics,
+                    context=i,
+                    **self._feedback_stability_kwargs(i),
+                )
             self._lumped_smatrix = accumulated_smatrix
             self._is_lumped_smatrix_calculated = True
         

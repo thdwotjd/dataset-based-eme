@@ -39,6 +39,7 @@ class DirectGeometry(metaclass=abc.ABCMeta):
         # reorder data by best overlap modes
         mode_links = self._generate_mode_links(overlap_ab)
         tracking_mode_names = self._generate_tracking_mode_names(mode_links)
+        mode_present = self._generate_mode_presence(tracking_mode_names)
 
         # new_tracking_mode_names = self._generate_new_tracking_mode_names(additional_overlap_dict, tracking_mode_names,)
         self._tracking_mode_names = tracking_mode_names
@@ -48,7 +49,9 @@ class DirectGeometry(metaclass=abc.ABCMeta):
         overlap_ab, overlap_ba = self._reorder_overlap(tracking_mode_names, overlap_ab, overlap_ba)
 
         # equalize overlap phase
-        overlap_ab, overlap_ba = self._equalize_overlap_phase(overlap_ab, overlap_ba)
+        overlap_ab, overlap_ba = self._equalize_overlap_phase(
+            overlap_ab, overlap_ba, mode_present
+        )
 
         # additional data
         radiation_mode_mask = self._get_radiation_mode_mask(neff)
@@ -63,6 +66,7 @@ class DirectGeometry(metaclass=abc.ABCMeta):
         output_data["beta"] = beta
         output_data["radiation_mode_mask"] = radiation_mode_mask
         output_data["TE_pol"] = TE_pol
+        output_data["mode_present"] = mode_present
         output_data["path"] = simul_params
 
         # dummy output to match with grid dataset base geometry
@@ -223,6 +227,17 @@ class DirectGeometry(metaclass=abc.ABCMeta):
 
         return reordered_data
 
+    @staticmethod
+    def _generate_mode_presence(tracking_mode_names):
+        """Return forward/backward masks for modes present in each section."""
+
+        section_count, mode_count = tracking_mode_names.shape
+        tracked_mode_count = int(tracking_mode_names.max() + 1)
+        forward_present = np.zeros((section_count, tracked_mode_count), dtype=bool)
+        for section_index in range(section_count):
+            forward_present[section_index, tracking_mode_names[section_index]] = True
+        return np.concatenate((forward_present, forward_present), axis=1)
+
     def _reorder_overlap(self, tracking_mode_names, overlap_ab, overlap_ba):
         """
         Parmeters:
@@ -332,18 +347,20 @@ class DirectGeometry(metaclass=abc.ABCMeta):
     
     #endregion reorder
 
-    def _equalize_overlap_phase(self, overlap_ab, overlap_ba):
+    def _equalize_overlap_phase(self, overlap_ab, overlap_ba, mode_present):
         print("Equalizing phase..")
         section_num, mode_count, _ = overlap_ab.shape
         mode_count = int(mode_count/2)
         backward_mode_mask = np.ones(shape=(mode_count,))
         backward_mode_mask = np.concatenate((backward_mode_mask, -backward_mode_mask))
 
-        i = 0
-        for i in range(len(overlap_ab) - 1):
-            # Create mask for each diagonal element in the 2D slice overlap[i]
-            mask = np.sign(np.diagonal(overlap_ab[i]).real)
-            mask *= backward_mode_mask
+        matched_modes = mode_present[:-1] & mode_present[1:]
+
+        for i in range(len(overlap_ab)):
+            phase_factor = np.ones(2 * mode_count)
+            diagonal_real = np.diagonal(overlap_ab[i]).real
+            phase_factor[matched_modes[i] & (diagonal_real < 0)] = -1
+            mask = phase_factor * backward_mode_mask
 
             # mask needs to be reshaped to broadcast correctly along rows and columns
             mask_row = mask[:, np.newaxis]  # Shape (m, 1) for broadcasting across columns
@@ -352,34 +369,23 @@ class DirectGeometry(metaclass=abc.ABCMeta):
             # Apply the mask across all columns for the i-th layer
             overlap_ab[i] *= mask_col
 
-            # Apply the mask across all rows for the (i+1)-th layer
-            overlap_ab[i + 1] *= mask_row
-
-        if i > 0:
-            # last overlap matrix row phase
-            mask = np.sign(np.diagonal(overlap_ab[i+1]).real)
-            mask *= backward_mode_mask
-            mask_col = mask[np.newaxis, :]
-            overlap_ab[i+1] *= mask_col
+            if i + 1 < len(overlap_ab):
+                overlap_ab[i + 1] *= mask_row
 
 
-        for i in range(len(overlap_ba) - 1):
+        for i in range(len(overlap_ba)):
             # for some reason, overlap_ab and overlap_ba have different sign sometimes
-            mask = np.sign(np.diagonal(overlap_ba[i]).real)
-            mask *= backward_mode_mask
+            phase_factor = np.ones(2 * mode_count)
+            diagonal_real = np.diagonal(overlap_ba[i]).real
+            phase_factor[matched_modes[i] & (diagonal_real < 0)] = -1
+            mask = phase_factor * backward_mode_mask
 
             mask_row = mask[:, np.newaxis]
             mask_col = mask[np.newaxis, :]
 
             overlap_ba[i] *= mask_row
-            overlap_ba[i + 1] *= mask_col
-        
-        if i > 0:
-            # last overlap matrix col phase
-            mask = np.sign(np.diagonal(overlap_ba[i+1]).real)
-            mask *= backward_mode_mask
-            mask_row = mask[:, np.newaxis]
-            overlap_ba[i+1] *= mask_row
+            if i + 1 < len(overlap_ba):
+                overlap_ba[i + 1] *= mask_col
 
         return overlap_ab, overlap_ba
     

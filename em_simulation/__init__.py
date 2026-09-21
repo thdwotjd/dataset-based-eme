@@ -19,5 +19,6 @@ from .geometry.single_waveguide.single_tapered_bend.single_custom_bend import Si
 
 
 from .propagator.eme import EME
+from .propagator.stability import EMEStabilityConfig
 
 from .runner.runner import Runner

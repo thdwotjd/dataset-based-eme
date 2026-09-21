@@ -2,6 +2,7 @@ import numpy as np
 from copy import deepcopy
 import sys
 import os
+import warnings
 # em_simulator_path = os.path.abspath("..")
 current_file_path = os.path.abspath(__file__)
 current_directory = os.path.dirname(current_file_path)
@@ -242,7 +243,146 @@ def _extract_blockmatrix_2D(matrix):
     return m11, m12, m21, m22
 #endregion extract block submatrix
 
-def _redheffer_star_product(matrix1, matrix2):
+def _right_solve(rhs, matrix, diagnostics=None, context=None):
+    """Solve ``result @ matrix = rhs`` with a least-squares fallback."""
+
+    rhs = np.asarray(rhs, dtype=np.complex128)
+    matrix = np.asarray(matrix, dtype=np.complex128)
+    reason = None
+    try:
+        result = np.linalg.solve(matrix.T, rhs.T).T
+        scale = np.linalg.norm(rhs) + np.linalg.norm(result) * np.linalg.norm(matrix)
+        residual = np.linalg.norm(result @ matrix - rhs) / max(
+            scale, np.finfo(float).tiny
+        )
+        tolerance = 100 * np.finfo(float).eps * max(matrix.shape)
+        if not np.all(np.isfinite(result)):
+            reason = "non_finite_solve"
+        elif residual > tolerance:
+            reason = "large_residual"
+        else:
+            return result
+    except np.linalg.LinAlgError:
+        reason = "singular_solve"
+
+    try:
+        transposed_result, _, rank, _ = np.linalg.lstsq(
+            matrix.T, rhs.T, rcond=None
+        )
+        result = transposed_result.T
+        valid = np.all(np.isfinite(result))
+    except np.linalg.LinAlgError:
+        result = np.zeros_like(rhs, dtype=np.complex128)
+        rank = 0
+        valid = False
+        reason = f"{reason}_and_lstsq_failed"
+
+    if diagnostics is not None:
+        diagnostics.setdefault("feedback_fallbacks", []).append({
+            "index": context,
+            "reason": reason,
+            "rank": int(rank),
+        })
+        diagnostics["status"] = "regularized" if valid else "invalid"
+    return result
+
+
+def _stabilized_feedback_right_solve(
+    rhs,
+    matrix,
+    mode_weights,
+    mode_present,
+    stability_config,
+    diagnostics=None,
+    context=None,
+    feedback_matrix=None,
+):
+    """Solve a Redheffer feedback system with PML-aware SVD truncation."""
+
+    rhs = np.asarray(rhs, dtype=np.complex128)
+    matrix = np.asarray(matrix, dtype=np.complex128)
+    mode_weights = np.asarray(mode_weights, dtype=float)
+    mode_present = np.asarray(mode_present, dtype=bool)
+    expected_shape = (matrix.shape[0],)
+    if mode_weights.shape != expected_shape:
+        raise ValueError("mode_weights do not match the feedback matrix")
+    if mode_present.shape != expected_shape:
+        raise ValueError("mode_present does not match the feedback matrix")
+
+    try:
+        u, singular_values, vh = np.linalg.svd(matrix, full_matrices=False)
+    except np.linalg.LinAlgError:
+        return _right_solve(rhs, matrix, diagnostics, context)
+    if singular_values.size == 0:
+        return np.zeros_like(rhs, dtype=np.complex128)
+
+    sigma_max = singular_values[0]
+    normalized = (
+        singular_values / sigma_max
+        if sigma_max > 0
+        else np.zeros_like(singular_values)
+    )
+    v = vh.conj().T
+    guided_weights = np.clip(mode_weights, 0.0, 1.0) * mode_present
+    pml_weights = (1.0 - np.clip(mode_weights, 0.0, 1.0)) * mode_present
+    guided_fraction = 0.5 * (
+        (np.abs(v) ** 2).T @ guided_weights
+        + (np.abs(u) ** 2).T @ guided_weights
+    )
+    pml_fraction = 0.5 * (
+        (np.abs(v) ** 2).T @ pml_weights
+        + (np.abs(u) ** 2).T @ pml_weights
+    )
+
+    pml_drop = (
+        pml_fraction >= stability_config.feedback_pml_fraction_threshold
+    ) & (normalized < stability_config.feedback_pml_rcond)
+    absolute_drop = normalized < stability_config.absolute_rcond
+    drop = pml_drop | absolute_drop
+    if not np.any(drop):
+        return _right_solve(rhs, matrix, diagnostics, context)
+
+    inverse_values = np.zeros_like(singular_values)
+    inverse_values[~drop] = 1.0 / singular_values[~drop]
+    inverse = (v * inverse_values[np.newaxis, :]) @ u.conj().T
+    result = rhs @ inverse
+
+    guided_heavy_absolute = absolute_drop & (
+        guided_fraction >= stability_config.guided_fraction_threshold
+    )
+    if diagnostics is not None:
+        diagnostics["status"] = "regularized"
+        event = {
+            "index": context,
+            "feedback_matrix": feedback_matrix,
+            "reason": "pml_truncated" if np.any(pml_drop) else "absolute_truncated",
+            "dropped_count": int(np.count_nonzero(drop)),
+            "guided_heavy_dropped": int(
+                np.count_nonzero(guided_heavy_absolute)
+            ),
+        }
+        feedback_events = diagnostics.setdefault("feedback_fallbacks", [])
+        if event not in feedback_events:
+            feedback_events.append(event)
+    if np.any(guided_heavy_absolute):
+        warnings.warn(
+            "A guided-heavy feedback singular direction was below "
+            f"absolute_rcond at matrix {context} ({feedback_matrix}).",
+            RuntimeWarning,
+            stacklevel=2,
+        )
+    return result
+
+
+def _redheffer_star_product(
+    matrix1,
+    matrix2,
+    diagnostics=None,
+    context=None,
+    feedback_mode_weights=None,
+    feedback_mode_present=None,
+    stability_config=None,
+):
     """
     It calculates the redheffer star product of matrix1 and matrix2
     It calculate the combined scattering matrix if matrix1 and matrix2 are scattering matrices.
@@ -256,8 +396,50 @@ def _redheffer_star_product(matrix1, matrix2):
     b11, b12, b21, b22 = _extract_blockmatrix_2D(matrix2)
     
     I = np.eye(mode_count, dtype=complex)
-    common_matrix1 = b11 @ np.linalg.inv(I - a12 @ b21)
-    common_matrix2 = a22 @ np.linalg.inv(I - b21 @ a12)
+    feedback_1 = I - a12 @ b21
+    feedback_2 = I - b21 @ a12
+    use_stabilized_feedback = all(
+        value is not None
+        for value in (
+            feedback_mode_weights,
+            feedback_mode_present,
+            stability_config,
+        )
+    )
+    if use_stabilized_feedback:
+        common_matrix1 = _stabilized_feedback_right_solve(
+            b11,
+            feedback_1,
+            feedback_mode_weights,
+            feedback_mode_present,
+            stability_config,
+            diagnostics=diagnostics,
+            context=context,
+            feedback_matrix="I-a12_b21",
+        )
+        common_matrix2 = _stabilized_feedback_right_solve(
+            a22,
+            feedback_2,
+            feedback_mode_weights,
+            feedback_mode_present,
+            stability_config,
+            diagnostics=diagnostics,
+            context=context,
+            feedback_matrix="I-b21_a12",
+        )
+    else:
+        common_matrix1 = _right_solve(
+            b11,
+            feedback_1,
+            diagnostics=diagnostics,
+            context=context,
+        )
+        common_matrix2 = _right_solve(
+            a22,
+            feedback_2,
+            diagnostics=diagnostics,
+            context=context,
+        )
 
     c11 = common_matrix1 @ a11
     c12 = common_matrix1 @ a12 @ b22 + b12
