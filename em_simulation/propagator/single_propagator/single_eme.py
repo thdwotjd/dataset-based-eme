@@ -44,7 +44,11 @@ class SingleEME(Propagator):
             self.output_data.get("mode_present", default_presence)[:,:self.mode_count],
             dtype=bool,
         )
-        self.stability_config = stability_config or EMEStabilityConfig()
+        if stability_config is None:
+            stability_config = EMEStabilityConfig()
+        elif not isinstance(stability_config, EMEStabilityConfig):
+            raise TypeError("stability_config must be an EMEStabilityConfig")
+        self.stability_config = stability_config
         self.stability_diagnostics = new_stability_diagnostics()
         self._mode_weights = mode_reliability_weights(
             self.neff_forward, self.mode_present, self.stability_config
@@ -79,12 +83,18 @@ class SingleEME(Propagator):
             smatrix = mct._find_nearest_unitary_3D_ray2(smatrix)
         if self._force_passive:
             smatrix = mct._make_passive_3D(smatrix)
+        smatrix = self._restore_sink_phase_matrices(smatrix, phase_propagations)
+        if self.stability_config.pml_mode_sink:
+            self.stability_diagnostics["pml_sink_mode_steps"] = int(
+                np.count_nonzero(self._pml_mode_mask())
+            )
         self.smatrix = smatrix
         self._lengths_per_matrix = lengths_per_matrix
         self._is_smatrix_calculated = True
         return smatrix
 
     def calc_Tmatrix(self):
+        self._require_tmatrix_sink_disabled()
         interfaces = self._calc_interface_Tmatrix()
         phase_propagations = self._calc_phase_propagation_Tmatrix()
         # delta_zs = deepcopy(self.output_data["delta_zs"])
@@ -103,7 +113,11 @@ class SingleEME(Propagator):
         return total_matrices
     
     def change_strucutre_length(self, new_length):
-        self.tmatrix = self._find_Tmatrix_new_length(new_length)
+        if self.stability_config.pml_mode_sink:
+            self.tmatrix = None
+            self._is_tmatrix_calculated = False
+        else:
+            self.tmatrix = self._find_Tmatrix_new_length(new_length)
         self.smatrix = self._find_Smatrix_new_length(new_length)
 
         lengths_per_matrix = np.zeros(2*self.section_count-2, dtype = float)
@@ -197,6 +211,7 @@ class SingleEME(Propagator):
         return result
     
     def _calc_phase_propagation_Tmatrix(self):
+        self._require_tmatrix_sink_disabled()
         diagonal_mask = np.eye(self.mode_count, dtype = np.complex64)
         i, j, _ = np.meshgrid(np.arange(0, self.section_count-1),\
                               np.arange(0, self.mode_count),\
@@ -220,6 +235,8 @@ class SingleEME(Propagator):
             * length_ratio
             * np.asarray(self.output_data["EME_delta_zs"])[:, np.newaxis]
         )
+        if self.stability_config.pml_mode_sink:
+            propagation[self._pml_mode_mask()] = 0.0
         propagation = propagation[:, :, np.newaxis] * diagonal_mask
         result = np.zeros(
             (self.section_count - 1, 2*self.mode_count, 2*self.mode_count),
@@ -228,6 +245,32 @@ class SingleEME(Propagator):
         result[:, :self.mode_count, :self.mode_count] = propagation
         result[:, self.mode_count:, self.mode_count:] = propagation
         return result
+
+    def _pml_mode_mask(self):
+        """Return present PML modes for each longitudinal propagation step."""
+
+        return self.mode_present[:-1] & (
+            np.abs(self.neff_forward[:-1].imag) >= self.stability_config.pml_loss
+        )
+
+    def _restore_sink_phase_matrices(self, smatrix, phase_propagations):
+        """Keep absorbing phase blocks after passivity/unitarity projections.
+
+        A complete sink and a unitary phase matrix are mutually exclusive.  When
+        both options are requested, the sink deliberately has final priority.
+        """
+
+        if self.stability_config.pml_mode_sink:
+            smatrix = np.array(smatrix, dtype=np.complex128, copy=True)
+            smatrix[0::2] = phase_propagations
+        return smatrix
+
+    def _require_tmatrix_sink_disabled(self):
+        if self.stability_config.pml_mode_sink:
+            raise RuntimeError(
+                "PML mode sink is supported only by the direct S-matrix path; "
+                "a zero-transmission phase block has no transfer-matrix inverse."
+            )
     
     def _calc_transmission_matrix(self, overlap_ab, overlap_ba):
         # if the result is wrong, try reorder overlap (check old version simulator)
@@ -263,9 +306,12 @@ class SingleEME(Propagator):
         if self._force_passive:
             smatrix = mct._make_passive_3D(smatrix)
 
+        smatrix = self._restore_sink_phase_matrices(smatrix, phase_propagations)
+
         return smatrix
 
     def _find_Tmatrix_new_length(self, new_length):
+        self._require_tmatrix_sink_disabled()
         if not self._is_interface_Tmatrix_calcualted:
             self._calc_interface_Tmatrix()
         
@@ -280,6 +326,7 @@ class SingleEME(Propagator):
         return total_matrices
 
     def _calc_phase_propagation_Tmatrix_new_length(self, new_length):
+        self._require_tmatrix_sink_disabled()
         initial_length = np.sum(deepcopy(self.output_data["EME_delta_zs"]))
         length_ratio = new_length/initial_length
 

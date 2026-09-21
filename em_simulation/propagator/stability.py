@@ -12,6 +12,7 @@ class EMEStabilityConfig:
 
     guided_loss: float = 2.84e-5  # approximately 10 dB/cm at 1550 nm
     pml_loss: float = 2.84e-3  # approximately 10 dB/100 um at 1550 nm
+    pml_mode_sink: bool = False
     guided_rcond: float = 1e-5
     pml_rcond: float = 0.05
     feedback_pml_rcond: float = 0.01 #1e-3
@@ -43,6 +44,7 @@ def new_stability_diagnostics():
         "status": "normal",
         "interface_events": [],
         "feedback_fallbacks": [],
+        "pml_sink_mode_steps": 0,
     }
 
 

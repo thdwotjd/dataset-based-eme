@@ -21,6 +21,10 @@ class EME(Propagator):
         :param force_unitary: Enforce unitarity when building scattering
             matrices.
         :type force_unitary: bool
+        :param stability_config: Numerical-stability settings. If omitted,
+            :class:`EMEStabilityConfig` defaults are used. A PML mode sink, when
+            enabled there, has final priority over unitary phase projection.
+        :type stability_config: EMEStabilityConfig or None
         """
         self._is_composite_geometry = geometry._is_composite_geometry
         if self._is_composite_geometry:

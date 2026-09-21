@@ -3,6 +3,7 @@ import types
 import unittest
 import warnings
 from pathlib import Path
+from unittest.mock import patch
 
 import numpy as np
 
@@ -45,6 +46,92 @@ from em_simulation.propagator.stability import (
 
 
 class StabilityTests(unittest.TestCase):
+    @staticmethod
+    def _make_phase_eme(pml_mode_sink=False, force_unitary=False):
+        config = EMEStabilityConfig(pml_mode_sink=pml_mode_sink)
+        eme = SingleEME.__new__(SingleEME)
+        eme.mode_count = 4
+        eme.section_count = 2
+        losses = np.array([1e-6, 1e-3, 5e-3, 5e-3])
+        neff = np.vstack([1.5 + 1j * losses, 1.5 + 1j * losses])
+        eme.neff_forward = neff
+        eme.beta_forward = 2 * np.pi * neff / 1.55e-6
+        eme.mode_present = np.array([
+            [True, True, True, False],
+            [True, True, True, False],
+        ])
+        eme.output_data = {"EME_delta_zs": np.array([2e-6])}
+        eme.stability_config = config
+        eme.stability_diagnostics = new_stability_diagnostics()
+        eme._mode_weights = mode_reliability_weights(
+            neff, eme.mode_present, config
+        )
+        identity = np.eye(eme.mode_count, dtype=complex)[np.newaxis]
+        eme.overlap_forward_ab = identity.copy()
+        eme.overlap_forward_ba = identity.copy()
+        eme._interface_Smatrix = None
+        eme._interface_Tmatrix = None
+        eme._is_interface_Smatrix_calculated = False
+        eme._is_interface_Tmatrix_calcualted = False
+        eme._is_smatrix_calculated = False
+        eme._is_tmatrix_calculated = False
+        eme._force_unitary = force_unitary
+        eme._force_passive = False
+        return eme
+
+    def test_pml_mode_sink_is_disabled_by_default(self):
+        self.assertFalse(EMEStabilityConfig().pml_mode_sink)
+
+    def test_pml_mode_sink_zeros_only_present_pml_phase_channels(self):
+        normal = self._make_phase_eme(pml_mode_sink=False)
+        sink = self._make_phase_eme(pml_mode_sink=True)
+
+        normal_phase = normal._calc_phase_propagation_Smatrix()[0]
+        sink_phase = sink._calc_phase_propagation_Smatrix()[0]
+        normal_diagonal = np.diag(normal_phase)
+        sink_diagonal = np.diag(sink_phase)
+
+        np.testing.assert_allclose(sink_diagonal[[0, 1, 3, 4, 5, 7]],
+                                   normal_diagonal[[0, 1, 3, 4, 5, 7]])
+        np.testing.assert_allclose(sink_diagonal[[2, 6]], 0.0)
+        self.assertNotEqual(normal_diagonal[2], 0.0)
+        self.assertNotEqual(sink_diagonal[3], 0.0)
+
+        sink.calc_Smatrix()
+        self.assertEqual(sink.stability_diagnostics["pml_sink_mode_steps"], 1)
+        self.assertEqual(sink.stability_diagnostics["status"], "normal")
+
+    def test_pml_mode_sink_has_priority_over_unitary_projection(self):
+        sink = self._make_phase_eme(
+            pml_mode_sink=True, force_unitary=True
+        )
+        expected_phase = sink._calc_phase_propagation_Smatrix()[0]
+        projected = np.ones((2, 8, 8), dtype=complex)
+
+        with patch.object(
+            mct, "_find_nearest_unitary_3D_ray2", return_value=projected
+        ):
+            smatrix = sink.calc_Smatrix()
+
+        np.testing.assert_allclose(smatrix[0], expected_phase)
+
+    def test_length_scaled_smatrix_keeps_pml_mode_sink(self):
+        sink = self._make_phase_eme(pml_mode_sink=True)
+        sink._interface_Smatrix = np.eye(8, dtype=complex)[np.newaxis]
+        sink._is_interface_Smatrix_calculated = True
+
+        smatrix = sink._find_Smatrix_new_length(4e-6)
+
+        self.assertEqual(smatrix[0, 2, 2], 0.0)
+        self.assertEqual(smatrix[0, 6, 6], 0.0)
+        self.assertNotEqual(smatrix[0, 1, 1], 0.0)
+
+    def test_pml_mode_sink_rejects_transfer_matrix_path(self):
+        sink = self._make_phase_eme(pml_mode_sink=True)
+
+        with self.assertRaisesRegex(RuntimeError, "direct S-matrix path"):
+            sink.calc_Tmatrix()
+
     def test_unmatched_zero_diagonal_does_not_zero_overlap_row_or_column(self):
         overlap_ab = np.eye(4, dtype=complex)[np.newaxis]
         overlap_ba = np.eye(4, dtype=complex)[np.newaxis]
