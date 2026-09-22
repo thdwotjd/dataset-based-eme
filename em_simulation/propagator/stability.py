@@ -10,19 +10,29 @@ import numpy as np
 class EMEStabilityConfig:
     """Small set of thresholds used by the stabilized EME path."""
 
-    guided_loss: float = 2.84e-5  # approximately 10 dB/cm at 1550 nm
-    pml_loss: float = 2.84e-3  # approximately 10 dB/100 um at 1550 nm
+    guided_loss: float = 2.84e-6  # approximately 10 dB/cm at 1550 nm
+    pml_regularization_loss: float = 2.84e-3  # approximately 10 dB/100 um
+    pml_sink_loss: float = 1.0e-2  # approximately 10 dB/10 um at 1550 nm
     pml_mode_sink: bool = False
     guided_rcond: float = 1e-5
-    pml_rcond: float = 0.05
-    feedback_pml_rcond: float = 0.01 #1e-3
-    guided_fraction_threshold: float = 0.8
-    feedback_pml_fraction_threshold: float = 0.8
+    pml_rcond: float = 0.001
+    feedback_pml_rcond: float = 0.001 #1e-3
+    guided_fraction_threshold: float = 0.9
+    feedback_pml_fraction_threshold: float = 0.9
     absolute_rcond: float = 1e-8
 
     def __post_init__(self):
-        if not 0 < self.guided_loss < self.pml_loss:
-            raise ValueError("guided_loss must be positive and smaller than pml_loss")
+        if not (
+            0
+            < self.guided_loss
+            < self.pml_regularization_loss
+            <= self.pml_sink_loss
+        ):
+            raise ValueError(
+                "loss thresholds must satisfy 0 < guided_loss < "
+                "pml_regularization_loss <= pml_sink_loss"
+            )
+
         if not 0 < self.guided_rcond <= self.pml_rcond < 1:
             raise ValueError("rcond values must satisfy 0 < guided_rcond <= pml_rcond < 1")
         if not 0 < self.feedback_pml_rcond < 1:
@@ -57,11 +67,14 @@ def mode_reliability_weights(neff, mode_present, config):
         raise ValueError("neff and mode_present must have the same shape")
 
     weights = np.ones(loss.shape, dtype=float)
-    pml = loss >= config.pml_loss
+    pml = loss >= config.pml_regularization_loss
     leaky = (loss > config.guided_loss) & ~pml
     weights[pml] = 0.0
     if np.any(leaky):
-        log_span = np.log(config.pml_loss) - np.log(config.guided_loss)
+        log_span = (
+            np.log(config.pml_regularization_loss)
+            - np.log(config.guided_loss)
+        )
         weights[leaky] = 1.0 - (
             np.log(loss[leaky]) - np.log(config.guided_loss)
         ) / log_span

@@ -250,7 +250,8 @@ class SingleEME(Propagator):
         """Return present PML modes for each longitudinal propagation step."""
 
         return self.mode_present[:-1] & (
-            np.abs(self.neff_forward[:-1].imag) >= self.stability_config.pml_loss
+            np.abs(self.neff_forward[:-1].imag)
+            >= self.stability_config.pml_sink_loss
         )
 
     def _restore_sink_phase_matrices(self, smatrix, phase_propagations):

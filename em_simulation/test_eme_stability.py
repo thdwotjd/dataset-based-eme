@@ -52,7 +52,12 @@ class StabilityTests(unittest.TestCase):
         eme = SingleEME.__new__(SingleEME)
         eme.mode_count = 4
         eme.section_count = 2
-        losses = np.array([1e-6, 1e-3, 5e-3, 5e-3])
+        losses = np.array([
+            1e-6,
+            1e-3,
+            2 * config.pml_sink_loss,
+            2 * config.pml_sink_loss,
+        ])
         neff = np.vstack([1.5 + 1j * losses, 1.5 + 1j * losses])
         eme.neff_forward = neff
         eme.beta_forward = 2 * np.pi * neff / 1.55e-6
@@ -159,8 +164,8 @@ class StabilityTests(unittest.TestCase):
         losses = np.array([
             0.0,
             config.guided_loss,
-            np.sqrt(config.guided_loss * config.pml_loss),
-            config.pml_loss,
+            np.sqrt(config.guided_loss * config.pml_regularization_loss),
+            config.pml_regularization_loss,
         ])
         neff = 1.5 + 1j * losses
 
@@ -169,6 +174,26 @@ class StabilityTests(unittest.TestCase):
         )
 
         np.testing.assert_allclose(weights, [1.0, 1.0, 0.5, 0.0])
+
+    def test_regularization_and_sink_loss_thresholds_are_independent(self):
+        config = EMEStabilityConfig(
+            pml_regularization_loss=1e-3,
+            pml_sink_loss=1e-2,
+            pml_mode_sink=True,
+        )
+        losses = np.array([1e-4, 2e-3, 2e-2])
+        neff = np.vstack([1.5 + 1j * losses, 1.5 + 1j * losses])
+        present = np.ones(neff.shape, dtype=bool)
+
+        weights = mode_reliability_weights(neff, present, config)
+        np.testing.assert_allclose(weights[:, 1:], 0.0)
+
+        eme = SingleEME.__new__(SingleEME)
+        eme.neff_forward = neff
+        eme.mode_present = present
+        eme.stability_config = config
+        expected_sink_mask = np.array([[False, False, True]])
+        np.testing.assert_array_equal(eme._pml_mode_mask(), expected_sink_mask)
 
     def test_adaptive_cutoff_preserves_guided_and_drops_pml_direction(self):
         config = EMEStabilityConfig()
