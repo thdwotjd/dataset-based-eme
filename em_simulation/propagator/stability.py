@@ -1,6 +1,7 @@
 """Numerical-stability helpers for eigenmode expansion interfaces."""
 
 from dataclasses import dataclass
+from typing import Optional
 import warnings
 
 import numpy as np
@@ -10,15 +11,16 @@ import numpy as np
 class EMEStabilityConfig:
     """Small set of thresholds used by the stabilized EME path."""
 
-    guided_loss: float = 2.84e-6  # approximately 10 dB/cm at 1550 nm
+    guided_loss: float = 2.84e-6  # approximately 1 dB/cm at 1550 nm
     pml_regularization_loss: float = 2.84e-3  # approximately 10 dB/100 um
-    pml_sink_loss: float = 1.0e-2  # approximately 10 dB/10 um at 1550 nm
+    pml_sink_loss: float = 1.0e-2  # approximately 3.5 dB/10 um at 1550 nm
+    pml_basis_loss_threshold: Optional[float] = None
     pml_mode_sink: bool = False
     guided_rcond: float = 1e-5
     pml_rcond: float = 0.001
     feedback_pml_rcond: float = 0.001 #1e-3
-    guided_fraction_threshold: float = 0.9
-    feedback_pml_fraction_threshold: float = 0.9
+    guided_fraction_threshold: float = 0.8
+    feedback_pml_fraction_threshold: float = 0.8
     absolute_rcond: float = 1e-8
 
     def __post_init__(self):
@@ -31,6 +33,17 @@ class EMEStabilityConfig:
             raise ValueError(
                 "loss thresholds must satisfy 0 < guided_loss < "
                 "pml_regularization_loss <= pml_sink_loss"
+            )
+
+        if (
+            self.pml_basis_loss_threshold is not None
+            and (
+                not np.isfinite(self.pml_basis_loss_threshold)
+                or self.pml_basis_loss_threshold <= 0
+            )
+        ):
+            raise ValueError(
+                "pml_basis_loss_threshold must be finite and positive or None"
             )
 
         if not 0 < self.guided_rcond <= self.pml_rcond < 1:
@@ -55,6 +68,10 @@ def new_stability_diagnostics():
         "interface_events": [],
         "feedback_fallbacks": [],
         "pml_sink_mode_steps": 0,
+        "inactive_leakage_count": 0,
+        "max_inactive_leakage": 0.0,
+        "propagation_gain_count": 0,
+        "max_propagation_magnitude": 0.0,
     }
 
 
@@ -96,16 +113,23 @@ def stabilized_inverse(
     matrix = np.asarray(matrix, dtype=np.complex128)
     input_weights = np.asarray(input_weights, dtype=float)
     output_weights = np.asarray(output_weights, dtype=float)
-    if matrix.ndim != 2 or matrix.shape[0] != matrix.shape[1]:
-        raise ValueError("matrix must be square")
+    if matrix.ndim != 2:
+        raise ValueError("matrix must be two-dimensional")
     if input_weights.shape != (matrix.shape[1],):
         raise ValueError("input_weights do not match matrix columns")
     if output_weights.shape != (matrix.shape[0],):
         raise ValueError("output_weights do not match matrix rows")
 
+    if 0 in matrix.shape:
+        return np.zeros(
+            (matrix.shape[1], matrix.shape[0]), dtype=np.complex128
+        )
+
     u, singular_values, vh = np.linalg.svd(matrix, full_matrices=False)
     if singular_values.size == 0:
-        return np.zeros_like(matrix)
+        return np.zeros(
+            (matrix.shape[1], matrix.shape[0]), dtype=np.complex128
+        )
 
     sigma_max = singular_values[0]
     normalized = (

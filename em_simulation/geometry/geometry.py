@@ -21,7 +21,7 @@ class Geometry():
         self._verbose = verbose
 
     
-    def calc_output_data(self):
+    def calc_output_data(self, pml_basis_loss_threshold=None):
         """Assemble modal data required by the propagator workflow.
 
         The method calls :meth:`calc_simulation_parameters`, which must be
@@ -56,9 +56,17 @@ class Geometry():
             neff, TE_pol, overlap_ab, overlap_ba = self._reduce_mode_number(neff, TE_pol, overlap_ab, overlap_ba)
             additional_overlap_dict = self._reduce_mode_number_overlap_dict(additional_overlap_dict)
 
+        # Exclude high-loss modes before overlap-based tracking. Inactive raw
+        # modes never receive a global tracked ID.
+        raw_mode_present = self._generate_raw_mode_presence(
+            neff, pml_basis_loss_threshold
+        )
+
         # reorder data by best overlap modes
-        mode_links = self._generate_mode_links(overlap_ab)
-        tracking_mode_names = self._generate_tracking_mode_names(mode_links)
+        mode_links = self._generate_mode_links(overlap_ab, raw_mode_present)
+        tracking_mode_names = self._generate_tracking_mode_names(
+            mode_links, raw_mode_present
+        )
         mode_present = self._generate_mode_presence(tracking_mode_names)
 
         self._tracking_mode_names = tracking_mode_names
@@ -99,8 +107,21 @@ class Geometry():
         output_data["EME_path"] = EME_path
         output_data["additional_overlap_dict"] = additional_overlap_dict
         output_data["index_mapping"] = index_mapping    # path index mapping from EME_path to simul_params path
+        output_data["pml_basis_loss_threshold"] = pml_basis_loss_threshold
         self.output_data = output_data
         return output_data
+
+    @staticmethod
+    def _generate_raw_mode_presence(neff, loss_threshold):
+        """Return the forward raw modes eligible for mode tracking."""
+
+        mode_count = neff.shape[1] // 2
+        if loss_threshold is None:
+            return np.ones((neff.shape[0], mode_count), dtype=bool)
+        present = np.abs(neff[:, :mode_count].imag) < loss_threshold
+        if not np.any(present):
+            raise ValueError("pml_basis_loss_threshold removed every mode")
+        return present
     
     def calc_simulation_parameters(self):
         """
@@ -313,10 +334,12 @@ class Geometry():
 
         overlap = deepcopy(overlap)
         overlap = overlap[:num_modes, :num_modes]
-        # Generate mode links for the sections between pt1 and mutual_pts    
+        # Generate mode links for the sections between pt1 and mutual_pts
         for i in range(num_modes):
-            max_index = np.argmax(np.abs(overlap[:, i]))
-            if np.abs(overlap[max_index, i]) > 0.5:
+            candidates = np.abs(overlap[:, i])
+            candidates[tracking_mode_names[index] < 0] = 0.0
+            max_index = np.argmax(candidates)
+            if candidates[max_index] > 0.5:
                 new_tracking_mode_names[i] = tracking_mode_names[index, max_index]
             else:
                 new_tracking_mode_names[i] = -1 # Indicating no valid link
@@ -389,7 +412,7 @@ class Geometry():
     #endregion get data from dataset
 
     #region reorder data, overlaps & equalize phase
-    def _generate_mode_links(self, overlap_matrices):
+    def _generate_mode_links(self, overlap_matrices, mode_present=None):
         """
         Generate mode links between sections.
         Parameters:
@@ -405,20 +428,31 @@ class Geometry():
         overlap_matrices = deepcopy(overlap_matrices[:,:num_modes, :num_modes])
         overlap_matrices = np.abs(overlap_matrices)
 
+        if mode_present is None:
+            mode_present = np.ones((num_sections, num_modes), dtype=bool)
+        else:
+            mode_present = np.asarray(mode_present, dtype=bool)
+            if mode_present.shape != (num_sections, num_modes):
+                raise ValueError("mode_present does not match overlap matrices")
+
         dummy_number = -500
         mode_links = np.ones(shape = (num_sections-1, num_modes), dtype=int) * dummy_number
 
         link_tolerance = 0.5
         for i in range(num_sections-1):
             for j in range(num_modes):
-                max_index = np.argmax(overlap_matrices[i,:,j])
-                if overlap_matrices[i,max_index,j] > link_tolerance:
+                if not mode_present[i + 1, j]:
+                    continue
+                candidates = overlap_matrices[i, :, j].copy()
+                candidates[~mode_present[i]] = 0.0
+                max_index = np.argmax(candidates)
+                if candidates[max_index] > link_tolerance:
                     mode_links[i,j] = max_index
         
         return mode_links
 
     
-    def _generate_tracking_mode_names(self, mode_links):
+    def _generate_tracking_mode_names(self, mode_links, mode_present=None):
         """
         Generate mode names for tracking the physical mode along the propagation
         Parameters:
@@ -433,17 +467,33 @@ class Geometry():
 
         tracking_mode_names = np.ones(shape=(num_sections, num_modes), dtype=int) * (-1)
 
+        if mode_present is None:
+            mode_present = np.ones((num_sections, num_modes), dtype=bool)
+        else:
+            mode_present = np.asarray(mode_present, dtype=bool)
+            if mode_present.shape != (num_sections, num_modes):
+                raise ValueError("mode_present does not match mode links")
+
         # initialize the first section name
+        next_mode_name = 0
         for i in range(num_modes):
-            tracking_mode_names[0][i] = i
+            if mode_present[0, i]:
+                tracking_mode_names[0, i] = next_mode_name
+                next_mode_name += 1
         
         # update remaining section names
         for i in range(num_sections-1):
             for j in range(num_modes):
+                if not mode_present[i + 1, j]:
+                    continue
                 linked_index = mode_links[i,j]
-                if linked_index < 0:
+                if (
+                    linked_index < 0
+                    or tracking_mode_names[i, linked_index] < 0
+                ):
                     # new mode
-                    tracking_mode_names[i+1,j] = tracking_mode_names.max() + 1
+                    tracking_mode_names[i+1,j] = next_mode_name
+                    next_mode_name += 1
                 else:
                     # tracked mode
                     tracking_mode_names[i+1,j] = tracking_mode_names[i, linked_index]
@@ -474,6 +524,8 @@ class Geometry():
         for i in range(section_count):
             for j in range(mode_numbers):
                 index_num = tracking_mode_names[i,j]
+                if index_num < 0:
+                    continue
                 reordered_forward_data[i, index_num] = forward_data[i,j]
                 reordered_backward_data[i, index_num] = backward_data[i,j]
         
@@ -490,7 +542,8 @@ class Geometry():
         tracked_mode_count = int(tracking_mode_names.max() + 1)
         forward_present = np.zeros((section_count, tracked_mode_count), dtype=bool)
         for section_index in range(section_count):
-            forward_present[section_index, tracking_mode_names[section_index]] = True
+            names = tracking_mode_names[section_index]
+            forward_present[section_index, names[names >= 0]] = True
         return np.concatenate((forward_present, forward_present), axis=1)
     
     def _reorder_overlap(self, tracking_mode_names, overlap_ab, overlap_ba):
@@ -504,6 +557,11 @@ class Geometry():
         Returns:
             - reorderd data: data orderd by polarization modes. ndarray of shape (section_count-1, 2*max_mode_num, 2*max_mode_num )
         """
+        if np.any(tracking_mode_names < 0):
+            return self._reorder_filtered_overlap(
+                tracking_mode_names, overlap_ab, overlap_ba
+            )
+
         section_count, mode_num, _ = overlap_ab.shape
         mode_num = int(mode_num/2)
         new_mode_num = tracking_mode_names.max()+1
@@ -597,6 +655,50 @@ class Geometry():
         reordered_overlap_ba[:,new_mode_num:, new_mode_num:] = overlap_ba_22_tot_reordered
 
         return reordered_overlap_ab, reordered_overlap_ba
+
+    @staticmethod
+    def _reorder_filtered_overlap(tracking_mode_names, overlap_ab, overlap_ba):
+        """Reorder overlaps while omitting raw modes excluded before tracking."""
+
+        interface_count = overlap_ab.shape[0]
+        raw_mode_count = overlap_ab.shape[1] // 2
+        tracked_mode_count = int(tracking_mode_names.max() + 1)
+        reordered_ab = np.zeros(
+            (interface_count, 2 * tracked_mode_count, 2 * tracked_mode_count),
+            dtype=overlap_ab.dtype,
+        )
+        reordered_ba = np.zeros_like(reordered_ab, dtype=overlap_ba.dtype)
+
+        for interface_index in range(interface_count):
+            left_names = tracking_mode_names[interface_index]
+            right_names = tracking_mode_names[interface_index + 1]
+            for left_raw, left_name in enumerate(left_names):
+                if left_name < 0:
+                    continue
+                for right_raw, right_name in enumerate(right_names):
+                    if right_name < 0:
+                        continue
+                    for row_direction in range(2):
+                        for column_direction in range(2):
+                            reordered_ab[
+                                interface_index,
+                                left_name + row_direction * tracked_mode_count,
+                                right_name + column_direction * tracked_mode_count,
+                            ] = overlap_ab[
+                                interface_index,
+                                left_raw + row_direction * raw_mode_count,
+                                right_raw + column_direction * raw_mode_count,
+                            ]
+                            reordered_ba[
+                                interface_index,
+                                right_name + row_direction * tracked_mode_count,
+                                left_name + column_direction * tracked_mode_count,
+                            ] = overlap_ba[
+                                interface_index,
+                                right_raw + row_direction * raw_mode_count,
+                                left_raw + column_direction * raw_mode_count,
+                            ]
+        return reordered_ab, reordered_ba
     
     def _reorder_additional_overlap(self, overlap_ab, overlap_ba, tracking_mode_names, new_tracking_mode_names, index):
         """
@@ -611,6 +713,18 @@ class Geometry():
             - equalized_ab: Reordered and phase-equalized overlap_ab
             - equalized_ba: Reordered and phase-equalized overlap_ba
         """
+        if (
+            np.any(tracking_mode_names[index] < 0)
+            or np.any(new_tracking_mode_names < 0)
+        ):
+            return self._reorder_filtered_additional_overlap(
+                overlap_ab,
+                overlap_ba,
+                tracking_mode_names[index],
+                new_tracking_mode_names,
+                int(tracking_mode_names.max() + 1),
+            )
+
         original_mode_num = overlap_ab.shape[0] // 2
         new_mode_num = tracking_mode_names.max() + 1
 
@@ -700,6 +814,46 @@ class Geometry():
         reordered_overlap_ba[new_mode_num:, new_mode_num:] = final_ba_22
 
         return reordered_overlap_ab, reordered_overlap_ba
+
+    @staticmethod
+    def _reorder_filtered_additional_overlap(
+        overlap_ab,
+        overlap_ba,
+        left_names,
+        right_names,
+        tracked_mode_count,
+    ):
+        """Reorder one auxiliary overlap without allocating excluded modes."""
+
+        raw_mode_count = overlap_ab.shape[0] // 2
+        reordered_ab = np.zeros(
+            (2 * tracked_mode_count, 2 * tracked_mode_count),
+            dtype=overlap_ab.dtype,
+        )
+        reordered_ba = np.zeros_like(reordered_ab, dtype=overlap_ba.dtype)
+        for left_raw, left_name in enumerate(left_names):
+            if left_name < 0:
+                continue
+            for right_raw, right_name in enumerate(right_names):
+                if right_name < 0:
+                    continue
+                for row_direction in range(2):
+                    for column_direction in range(2):
+                        reordered_ab[
+                            left_name + row_direction * tracked_mode_count,
+                            right_name + column_direction * tracked_mode_count,
+                        ] = overlap_ab[
+                            left_raw + row_direction * raw_mode_count,
+                            right_raw + column_direction * raw_mode_count,
+                        ]
+                        reordered_ba[
+                            right_name + row_direction * tracked_mode_count,
+                            left_name + column_direction * tracked_mode_count,
+                        ] = overlap_ba[
+                            right_raw + row_direction * raw_mode_count,
+                            left_raw + column_direction * raw_mode_count,
+                        ]
+        return reordered_ab, reordered_ba
 
         
     def _equalize_overlap_phase(self, overlap_ab, overlap_ba, mode_present, overlap_dict = 0, index_mapping = 0):
