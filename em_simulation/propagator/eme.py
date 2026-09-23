@@ -24,6 +24,9 @@ class EME(Propagator):
         :param stability_config: Numerical-stability settings. If omitted,
             :class:`EMEStabilityConfig` defaults are used. A PML mode sink, when
             enabled there, has final priority over unitary phase projection.
+            An optional PML basis loss cutoff filters raw modes before mode
+            tracking, then keeps a fixed square basis over the retained
+            tracked mode IDs.
         :type stability_config: EMEStabilityConfig or None
         """
         self._is_composite_geometry = geometry._is_composite_geometry

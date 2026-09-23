@@ -45,13 +45,16 @@ class SingleRunner():
         if matrix_index % 2 == 0:
             return {}
         section_index = matrix_index // 2
+        basis_mode_present = getattr(
+            self._propagator_instance,
+            "basis_mode_present",
+            self._propagator_instance.mode_present,
+        )
         return {
             "feedback_mode_weights": self._propagator_instance._mode_weights[
                 section_index
             ],
-            "feedback_mode_present": self._propagator_instance.mode_present[
-                section_index
-            ],
+            "feedback_mode_present": basis_mode_present[section_index],
             "stability_config": self._propagator_instance.stability_config,
         }
 
