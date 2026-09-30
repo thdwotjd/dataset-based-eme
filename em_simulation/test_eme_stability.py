@@ -248,14 +248,59 @@ class StabilityTests(unittest.TestCase):
         direct = eme._calc_interface_Smatrix()[0]
         transmission_12 = 2 * np.linalg.inv(overlap_ab + overlap_ba.T)
         transmission_21 = 2 * np.linalg.inv(overlap_ba + overlap_ab.T)
-        reflection_12 = 0.5 * (overlap_ab.T - overlap_ba) @ transmission_12
-        reflection_21 = 0.5 * (overlap_ba.T - overlap_ab) @ transmission_21
+        reflection_12 = 0.5 * (overlap_ba.T - overlap_ab) @ transmission_12
+        reflection_21 = 0.5 * (overlap_ab.T - overlap_ba) @ transmission_21
         expected = np.block([
             [transmission_12, -reflection_21],
             [reflection_12, transmission_21],
         ])
 
         np.testing.assert_allclose(direct, expected, rtol=1e-12, atol=1e-12)
+
+        # For left incidence, both tangential-field matching equations must
+        # hold independently of the reflection formula used above.
+        incident = np.eye(eme.mode_count, dtype=complex)
+        np.testing.assert_allclose(
+            incident - direct[eme.mode_count:, :eme.mode_count],
+            overlap_ab @ direct[:eme.mode_count, :eme.mode_count],
+            rtol=1e-12,
+            atol=1e-12,
+        )
+        np.testing.assert_allclose(
+            incident + direct[eme.mode_count:, :eme.mode_count],
+            overlap_ba.T @ direct[:eme.mode_count, :eme.mode_count],
+            rtol=1e-12,
+            atol=1e-12,
+        )
+
+        transfer = eme._calc_interface_Tmatrix()
+        converted = mct._convert_3Dmatrix_ray(transfer)[0]
+        np.testing.assert_allclose(direct, converted, rtol=1e-12, atol=1e-12)
+
+    def test_single_plane_wave_interface_matches_fresnel_reflection(self):
+        index_left = 1.0
+        index_right = 2.0
+        eme = SingleEME.__new__(SingleEME)
+        eme.mode_count = 1
+        eme.section_count = 2
+        eme.overlap_forward_ab = np.array(
+            [[[np.sqrt(index_right / index_left)]]]
+        )
+        eme.overlap_forward_ba = np.array(
+            [[[np.sqrt(index_left / index_right)]]]
+        )
+        eme._mode_weights = np.ones((2, 1))
+        eme.stability_config = EMEStabilityConfig()
+        eme.stability_diagnostics = new_stability_diagnostics()
+
+        direct = eme._calc_interface_Smatrix()[0]
+        reflected_field = direct[1, 0]
+        expected_reflection = (index_left - index_right) / (
+            index_left + index_right
+        )
+        np.testing.assert_allclose(
+            reflected_field, expected_reflection, rtol=1e-12, atol=1e-12
+        )
 
     def test_right_solve_falls_back_without_raising(self):
         diagnostics = new_stability_diagnostics()

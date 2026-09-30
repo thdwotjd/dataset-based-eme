@@ -196,8 +196,8 @@ class SingleEME(Propagator):
             )
             transmission_12 = 2.0 * inverse_12
             transmission_21 = 2.0 * inverse_21
-            reflection_12 = 0.5 * (overlap_ab.T - overlap_ba) @ transmission_12
-            reflection_21 = 0.5 * (overlap_ba.T - overlap_ab) @ transmission_21
+            reflection_12 = 0.5 * (overlap_ba.T - overlap_ab) @ transmission_12
+            reflection_21 = 0.5 * (overlap_ab.T - overlap_ba) @ transmission_21
 
             # The upper-right sign follows this package's backward-amplitude
             # convention and exactly matches the legacy T-to-S conversion.
@@ -282,7 +282,10 @@ class SingleEME(Propagator):
         return result
     
     def _calc_reflection_matrix(self, overlap_ab, overlap_ba, transmission_matrix):
-        result = 0.5 * (np.transpose(overlap_ab, (0,2,1)) - overlap_ba) @ transmission_matrix
+        # Eq. 2.38: R_I,II = 1/2 (O_II,I^T - O_I,II) T_I,II.
+        result = 0.5 * (
+            np.transpose(overlap_ba, (0,2,1)) - overlap_ab
+        ) @ transmission_matrix
         return result
     
     #endregion functions used in calc_Tmatrix
