@@ -8,17 +8,17 @@ import numpy as np
 
 @dataclass(frozen=True)
 class EMEStabilityConfig:
-    """Small set of thresholds used by the stabilized EME path."""
+    """SiN convergence defaults for direct S-matrix EME propagation."""
 
-    guided_loss: float = 2.84e-6  # approximately 10 dB/cm at 1550 nm
+    guided_loss: float = 2.84e-5  # approximately 100 dB/cm at 1550 nm
     pml_regularization_loss: float = 2.84e-3  # approximately 10 dB/100 um
-    pml_sink_loss: float = 1.0e-2  # approximately 10 dB/10 um at 1550 nm
-    pml_mode_sink: bool = False
+    pml_sink_loss: float = 8.4e-3
+    pml_mode_sink: bool = True
     guided_rcond: float = 1e-5
     pml_rcond: float = 0.001
     feedback_pml_rcond: float = 0.001 #1e-3
-    guided_fraction_threshold: float = 0.9
-    feedback_pml_fraction_threshold: float = 0.9
+    guided_fraction_threshold: float = 0.8
+    feedback_pml_fraction_threshold: float = 0.8
     absolute_rcond: float = 1e-8
 
     def __post_init__(self):

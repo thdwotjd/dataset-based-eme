@@ -1,4 +1,5 @@
 import sys
+from dataclasses import asdict
 import types
 import unittest
 import warnings
@@ -37,6 +38,8 @@ if "ray" not in sys.modules:
 from em_simulation import matrix_calculation_tool as mct
 from em_simulation.geometry.geometry import Geometry
 from em_simulation.propagator.single_propagator.single_eme import SingleEME
+from em_simulation.propagator.multi_propagator.multi_eme import MultiEME
+from em_simulation.runner.multi_runner import MultiRunner
 from em_simulation.propagator.stability import (
     EMEStabilityConfig,
     mode_reliability_weights,
@@ -84,8 +87,19 @@ class StabilityTests(unittest.TestCase):
         eme._force_passive = False
         return eme
 
-    def test_pml_mode_sink_is_disabled_by_default(self):
-        self.assertFalse(EMEStabilityConfig().pml_mode_sink)
+    def test_sin_convergence_settings_are_defaults(self):
+        self.assertEqual(asdict(EMEStabilityConfig()), {
+            "guided_loss": 2.84e-5,
+            "pml_regularization_loss": 2.84e-3,
+            "pml_sink_loss": 0.0084,
+            "pml_mode_sink": True,
+            "guided_rcond": 1e-5,
+            "pml_rcond": 1e-3,
+            "feedback_pml_rcond": 1e-3,
+            "guided_fraction_threshold": 0.8,
+            "feedback_pml_fraction_threshold": 0.8,
+            "absolute_rcond": 1e-8,
+        })
 
     def test_pml_mode_sink_zeros_only_present_pml_phase_channels(self):
         normal = self._make_phase_eme(pml_mode_sink=False)
@@ -136,6 +150,26 @@ class StabilityTests(unittest.TestCase):
 
         with self.assertRaisesRegex(RuntimeError, "direct S-matrix path"):
             sink.calc_Tmatrix()
+
+    def test_transfer_matrix_remains_available_with_sink_disabled(self):
+        no_sink = self._make_phase_eme(pml_mode_sink=False)
+        self.assertEqual(no_sink.calc_Tmatrix().shape, (2, 8, 8))
+
+    def test_multi_runner_does_not_request_transfer_matrix(self):
+        multi = MultiEME.__new__(MultiEME)
+        multi.propagators = []
+        multi._is_smatrix_calculated = False
+        multi._is_tmatrix_calculated = False
+        multi._is_lengths_per_matrices_calculated = True
+        multi._is_smatrix_merged = True
+        multi._merged_smatrix = np.zeros((0, 2, 2), dtype=complex)
+        multi._radiation_mode_masks = []
+        with patch.object(multi, "calc_Smatrix") as calc_s, patch.object(
+            multi, "calc_Tmatrix", side_effect=AssertionError("unexpected T path")
+        ):
+            runner = MultiRunner(multi)
+        calc_s.assert_called_once_with()
+        self.assertIs(runner._merged_smatrix, multi._merged_smatrix)
 
     def test_unmatched_zero_diagonal_does_not_zero_overlap_row_or_column(self):
         overlap_ab = np.eye(4, dtype=complex)[np.newaxis]

@@ -95,8 +95,22 @@ examples/Si_linear_taper_simul.ipynb
 
 It includes:
 - Dataset loading
-- Transfer matrix calculation
+- Direct scattering-matrix propagation
 - Plot generation and analysis
+
+`EMEStabilityConfig()` now uses the SiN convergence settings by default,
+including `pml_mode_sink=True`. The sink applies to the direct S-matrix
+path. For explicit T-matrix calculations, disable it in the config:
+
+```python
+import em_simulation as sim
+
+eme = sim.EME(geometry, stability_config=sim.EMEStabilityConfig(pml_mode_sink=False))
+eme.calc_Tmatrix()
+```
+
+The default thresholds came from the SiN convergence setup at 1.55 um;
+validate them for other datasets and wavelengths.
 
 ---
 ## Concept: Dataset-Based EME

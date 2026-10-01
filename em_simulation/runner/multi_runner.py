@@ -21,9 +21,6 @@ class MultiRunner():
         propagators = propagator_instance.propagators   # list of propagators
 
 
-        if not self._propagator_instance._is_tmatrix_calculated:
-            self._propagator_instance.calc_Tmatrix()
-
         if not self._propagator_instance._is_smatrix_calculated:
             self._propagator_instance.calc_Smatrix()
 

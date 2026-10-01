@@ -22,8 +22,10 @@ class EME(Propagator):
             matrices.
         :type force_unitary: bool
         :param stability_config: Numerical-stability settings. If omitted,
-            :class:`EMEStabilityConfig` defaults are used. A PML mode sink, when
-            enabled there, has final priority over unitary phase projection.
+            :class:`EMEStabilityConfig` uses the SiN convergence defaults,
+            including a PML sink for direct S-matrix propagation. Pass
+            ``EMEStabilityConfig(pml_mode_sink=False)`` for the T-matrix path.
+            The sink has final priority over unitary phase projection.
         :type stability_config: EMEStabilityConfig or None
         """
         self._is_composite_geometry = geometry._is_composite_geometry
@@ -39,7 +41,7 @@ class EME(Propagator):
             self._is_multipropagator = 0
     
     def calc_Tmatrix(self):
-        """Compute and cache the overall transfer matrix."""
+        """Compute the transfer matrix; the config must disable PML sink."""
         self.propagator.calc_Tmatrix()
 
     def calc_Smatrix(self):
