@@ -28,8 +28,8 @@ class EME(Propagator):
             ``EMEStabilityConfig(pml_mode_sink=False)`` for the T-matrix path.
             The sink has final priority over unitary phase projection.
         :type stability_config: EMEStabilityConfig or None
-        :param neff_interpolation: Interpolate guided-mode neff along one
-            varying dataset parameter for propagation phases. Interface
+        :param neff_interpolation: Interpolate guided-mode neff along physical
+            dataset parameter trajectories for propagation phases. Interface
             overlaps and PML treatment are unchanged. Disabled by default.
         :type neff_interpolation: bool
         """

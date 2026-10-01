@@ -1,10 +1,12 @@
-"""Optional single-parameter effective-index interpolation for EME phases.
+"""Optional effective-index interpolation for EME phases.
 
 Only propagation constants are changed. Dataset modes, interface overlaps,
 stability weights, and PML sink decisions keep their original values.
 """
 
 from __future__ import annotations
+
+import warnings
 
 import numpy as np
 
@@ -60,10 +62,8 @@ def interpolate_single_axis_beta(geometry):
         if np.ptp(values) > tolerance:
             varying.append(name)
     if len(varying) > 1:
-        raise ValueError(
-            "neff_interpolation currently supports one varying dataset "
-            f"parameter; found {varying}"
-        )
+        from .multiaxis_neff_interpolation import interpolate_multiaxis_beta
+        return interpolate_multiaxis_beta(geometry, varying)
     diagnostics = {
         "enabled": True,
         "axis": varying[0] if varying else None,
@@ -94,10 +94,18 @@ def interpolate_single_axis_beta(geometry):
     sample_values = np.asarray(
         geometry.continuous_parameter_values(sample_s.ravel())[axis], dtype=float
     ).reshape(sample_s.shape)
-    if (not np.all(np.isfinite(sample_values))
-            or sample_values.min() < grid[0] - tolerance
-            or sample_values.max() > grid[-1] + tolerance):
-        raise ValueError(f"Physical {axis} lies outside the dataset grid")
+    outside = np.any(
+        ~np.isfinite(sample_values)
+        | (sample_values < grid[0] - tolerance)
+        | (sample_values > grid[-1] + tolerance), axis=1
+    )
+    diagnostics["fallback_out_of_grid_sections"] = int(np.count_nonzero(outside))
+    if np.any(outside):
+        warnings.warn(
+            f"neff_interpolation retained the original phase in "
+            f"{np.count_nonzero(outside)} {axis} sections outside the dataset grid",
+            RuntimeWarning, stacklevel=2,
+        )
     sample_values = np.clip(sample_values, grid[0], grid[-1])
 
     # Repeated visits to a point must give the same tracked neff. Ambiguous
@@ -170,6 +178,8 @@ def interpolate_single_axis_beta(geometry):
 
     k0 = 2 * np.pi / geometry.wavelength
     for section in range(len(lengths)):
+        if outside[section]:
+            continue
         for mode in np.flatnonzero(guided[section]):
             left = tracked[lower[section], mode]
             right = tracked[upper[section], mode]

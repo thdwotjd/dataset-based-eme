@@ -13,8 +13,9 @@ class FakeOneAxisGeometry:
     wavelength = 2 * np.pi
     _resolution = 9
 
-    def __init__(self, varying_width=False, right_guided=True):
+    def __init__(self, varying_width=False, right_guided=True, outside=False):
         self.varying_width = varying_width
+        self.outside = outside
         self.data = SimpleNamespace(
             parameter_grid={
                 "top_width": np.array([1.0, 2.0]),
@@ -36,7 +37,7 @@ class FakeOneAxisGeometry:
         positions = np.asarray(positions)
         return {
             "top_width": 1.0 + positions if self.varying_width else np.ones_like(positions),
-            "curvature": positions**2,
+            "curvature": positions**2 * (1.5 if self.outside else 1.0),
         }
 
 
@@ -47,18 +48,22 @@ class NeffInterpolationTests(unittest.TestCase):
         self.assertEqual(info["axis"], "curvature")
         self.assertEqual(info["interpolated_mode_steps"], 1)
 
+    def test_out_of_grid_falls_back_with_warning(self):
+        import warnings
+        with warnings.catch_warnings(record=True) as caught:
+            beta, info = interpolate_single_axis_beta(
+                FakeOneAxisGeometry(outside=True)
+            )
+        self.assertEqual(len(caught), 1)
+        self.assertAlmostEqual(beta[0, 0].real, 2.0)
+        self.assertEqual(info["fallback_out_of_grid_sections"], 1)
+
     def test_missing_guided_neighbor_uses_existing_phase(self):
         beta, info = interpolate_single_axis_beta(
             FakeOneAxisGeometry(right_guided=False)
         )
         self.assertAlmostEqual(beta[0, 0].real, 2.0)
         self.assertEqual(info["interpolated_mode_steps"], 0)
-
-    def test_two_varying_axes_are_rejected(self):
-        with self.assertRaisesRegex(ValueError, "one varying"):
-            interpolate_single_axis_beta(
-                FakeOneAxisGeometry(varying_width=True)
-            )
 
 
 if __name__ == "__main__":

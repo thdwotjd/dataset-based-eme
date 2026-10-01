@@ -95,6 +95,7 @@ class Geometry():
         output_data["radiation_mode_mask"] = radiation_mode_mask
         output_data["TE_pol"] = TE_pol
         output_data["mode_present"] = mode_present
+        output_data["tracking_mode_names"] = tracking_mode_names.copy()
         output_data["path"] = simul_params
         output_data["EME_path"] = EME_path
         output_data["additional_overlap_dict"] = additional_overlap_dict
