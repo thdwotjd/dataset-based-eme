@@ -112,6 +112,25 @@ eme.calc_Tmatrix()
 The default thresholds came from the SiN convergence setup at 1.55 um;
 validate them for other datasets and wavelengths.
 
+### Optional one-axis neff interpolation
+
+Set neff_interpolation=True on sim.EME to interpolate the effective index
+only in propagation phase matrices:
+
+~~~python
+eme = sim.EME(geometry, neff_interpolation=True)
+runner = sim.Runner(eme)
+print(eme.neff_interpolation_diagnostics)
+~~~
+
+The option defaults to False. It uses the physical top-width or curvature
+profile and the two adjacent dataset points at each location, preserving
+overlap-based mode continuity. The weighted neff is integrated within each EME
+section. Interface overlaps, PML phase handling, and stability thresholds are
+unchanged. Guided modes with unavailable or ambiguous neighbors keep their
+original phase. Geometries that vary two or more dataset parameters at once
+raise an error; multidimensional interpolation is not implemented.
+
 ---
 ## Concept: Dataset-Based EME
 

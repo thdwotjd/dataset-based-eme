@@ -8,6 +8,7 @@ class MultiEME(MultiPropagator):
         force_passive=False,
         force_unitary=False,
         stability_config=None,
+        neff_interpolation=False,
     ): #, is_test_mode = False):
         super().__init__(composite_geometry, force_passive=force_passive, force_unitar=force_unitary)
         
@@ -17,7 +18,8 @@ class MultiEME(MultiPropagator):
         from ..single_propagator.single_eme import SingleEME
         for geometry in geometries:
             eme = SingleEME(
-                geometry, force_passive, force_unitary, stability_config
+                geometry, force_passive, force_unitary, stability_config,
+                neff_interpolation=neff_interpolation,
             ) #, is_test_mode)
             propagators.append(eme)
         # multieme parameters

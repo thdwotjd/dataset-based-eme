@@ -24,7 +24,25 @@ class SingleWaveguide(Geometry, metaclass=abc.ABCMeta):
         self._curvature_function = None
         self._prop_angle_function = None
         self._resolution = resolution
-        # self._total_length = 0
+
+    def continuous_parameter_values(self, positions):
+        """Return physical dataset parameters at propagation positions."""
+        width_fn, curvature_fn, angle_fn = self._parametrized_function()
+        positions = np.asarray(positions, dtype=float)
+        curvature = np.asarray(curvature_fn(positions), dtype=float)
+        values = {
+            "top_width": np.asarray(width_fn(positions), dtype=float),
+            "curvature": np.abs(curvature),
+        }
+        if "rotation_angle" in self.parameter_names:
+            angle = np.asarray(angle_fn(positions), dtype=float)
+            values["rotation_angle"] = np.where(curvature >= 0, -angle, angle)
+        unsupported = set(self.parameter_names) - set(values)
+        if unsupported:
+            raise NotImplementedError(
+                f"No physical parameter function for {sorted(unsupported)}"
+            )
+        return {name: values[name] for name in self.parameter_names}
         
     
     

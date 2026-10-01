@@ -4,6 +4,7 @@ from copy import deepcopy
 from ... import matrix_calculation_tool as mct
 from ...geometry.geometry import Geometry
 from ..propagator import Propagator
+from ..neff_interpolation import interpolate_single_axis_beta
 from ..stability import (
     EMEStabilityConfig,
     mode_reliability_weights,
@@ -22,6 +23,7 @@ class SingleEME(Propagator):
         force_passive=False,
         force_unitary=False,
         stability_config=None,
+        neff_interpolation=False,
     ):
         super().__init__(geometry, force_passive=force_passive, force_unitary=force_unitary)
 
@@ -49,6 +51,14 @@ class SingleEME(Propagator):
         elif not isinstance(stability_config, EMEStabilityConfig):
             raise TypeError("stability_config must be an EMEStabilityConfig")
         self.stability_config = stability_config
+        if not isinstance(neff_interpolation, bool):
+            raise TypeError("neff_interpolation must be a bool")
+        self.neff_interpolation = neff_interpolation
+        self.neff_interpolation_diagnostics = {"enabled": False}
+        if neff_interpolation:
+            self.beta_forward, self.neff_interpolation_diagnostics = (
+                interpolate_single_axis_beta(geometry)
+            )
         self.stability_diagnostics = new_stability_diagnostics()
         self._mode_weights = mode_reliability_weights(
             self.neff_forward, self.mode_present, self.stability_config
@@ -340,8 +350,8 @@ class SingleEME(Propagator):
                               np.arange(0, self.mode_count),\
                               indexing = 'ij')
 
-        forward_matrix = np.exp(1j*self.output_data["beta"][i, j]*length_ratio*self.output_data["EME_delta_zs"][i]) * diagonal_mask
-        backward_matrix = np.exp((-1j)*self.output_data["beta"][i, j]*length_ratio*self.output_data["EME_delta_zs"][i]) * diagonal_mask
+        forward_matrix = np.exp(1j*self.beta_forward[i, j]*length_ratio*self.output_data["EME_delta_zs"][i]) * diagonal_mask
+        backward_matrix = np.exp((-1j)*self.beta_forward[i, j]*length_ratio*self.output_data["EME_delta_zs"][i]) * diagonal_mask
 
         result = np.zeros(shape = (self.section_count-1, 2*self.mode_count, 2*self.mode_count), dtype = complex)
         result[:,:self.mode_count, :self.mode_count] = forward_matrix
