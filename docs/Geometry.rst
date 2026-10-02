@@ -22,7 +22,7 @@ The following methods are available for the all geometry classes:
 .. automethod:: SingleWaveguide.plot_2D_structure
 
 Geometry classes
--------
+----------------
 .. module:: em_simulation
 .. currentmodule:: em_simulation
 

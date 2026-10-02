@@ -8,9 +8,15 @@ import numpy as np
 
 @dataclass(frozen=True)
 class EMEStabilityConfig:
-    """SiN convergence defaults for direct S-matrix EME propagation."""
+    """Numerical stability settings for direct S-matrix EME propagation.
 
-    guided_loss: float = 2.84e-5  # approximately 100 dB/cm at 1550 nm
+    Loss thresholds use the dimensionless absolute imaginary effective
+    index. The defaults came from SiN convergence tests at 1.55 micrometers.
+    See the EME stability and one-axis phase interpolation guide for the
+    interface, feedback, and PML sink rules.
+    """
+
+    guided_loss: float = 2.84e-5  # approximately 10 dB/cm at 1550 nm
     pml_regularization_loss: float = 2.84e-3  # approximately 10 dB/100 um
     pml_sink_loss: float = 8.4e-3
     pml_mode_sink: bool = True

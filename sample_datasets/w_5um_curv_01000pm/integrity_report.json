@@ -1,0 +1,31 @@
+{
+  "expected_point_count": 51,
+  "neff_point_count": 51,
+  "te_pol_point_count": 51,
+  "overlap_point_count": 51,
+  "missing_neff": [],
+  "missing_te_pol": [],
+  "missing_overlap": [],
+  "unexpected_neff": [],
+  "unexpected_te_pol": [],
+  "unexpected_overlap": [],
+  "missing_neighbors": {},
+  "unexpected_neighbors": {},
+  "neff_shapes": [
+    [
+      60
+    ]
+  ],
+  "te_pol_shapes": [
+    [
+      60
+    ]
+  ],
+  "overlap_matrix_shapes": [
+    [
+      60,
+      60
+    ]
+  ],
+  "pass": true
+}

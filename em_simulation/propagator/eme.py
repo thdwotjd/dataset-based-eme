@@ -23,7 +23,8 @@ class EME(Propagator):
             matrices.
         :type force_unitary: bool
         :param stability_config: Numerical-stability settings. If omitted,
-            :class:`EMEStabilityConfig` uses the SiN convergence defaults,
+            :class:`~em_simulation.propagator.stability.EMEStabilityConfig`
+            uses the SiN convergence defaults,
             including a PML sink for direct S-matrix propagation. Pass
             ``EMEStabilityConfig(pml_mode_sink=False)`` for the T-matrix path.
             The sink has final priority over unitary phase projection.
@@ -49,6 +50,13 @@ class EME(Propagator):
     
     @property
     def neff_interpolation_diagnostics(self):
+        """Summarize optional phase interpolation for each geometry.
+
+        A single geometry returns a dictionary with ``enabled``, ``axis``,
+        ``guided_mode_steps``, ``interpolated_mode_steps``, and
+        ``tracking_conflicts``. A composite geometry returns a list of
+        these dictionaries, one per component.
+        """
         if self._is_multipropagator:
             return [item.neff_interpolation_diagnostics
                     for item in self.propagator.propagators]

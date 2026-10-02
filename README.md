@@ -27,6 +27,10 @@ Transmission, Reflection, Mode Coupling Analysis
 Full project documentation is available on Read the Docs:
 
 <https://dataset-based-emedreme.readthedocs.io>
+
+For the EME stability thresholds, PML sink, and optional one-axis phase
+interpolation, see the [EME options guide](https://dataset-based-emedreme.readthedocs.io/en/latest/EME_stability_and_interpolation.html).
+
 ---
 
 ## Repository Structure
@@ -97,6 +101,14 @@ It includes:
 - Dataset loading
 - Direct scattering-matrix propagation
 - Plot generation and analysis
+
+For a side-by-side phase comparison and stability-configuration example,
+open [examples/EME_stability_and_neff_interpolation.ipynb](examples/EME_stability_and_neff_interpolation.ipynb).
+
+For an empirical 5 µm SiN Partial/Full Euler comparison using the included
+1,000 and 5,000 m⁻¹ curvature datasets, see the
+[SiN interpolation example](examples/SiN_curvature_interpolation.py) and
+[validation results](examples/results/sin_curvature_interpolation/README.md).
 
 `EMEStabilityConfig()` now uses the SiN convergence settings by default,
 including `pml_mode_sink=True`. The sink applies to the direct S-matrix
