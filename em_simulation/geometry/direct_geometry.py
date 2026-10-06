@@ -1,6 +1,7 @@
 from ..data_extractor.data_extractor import DataExtractor
 from copy import deepcopy
 import numpy as np
+from .mode_tracking import match_modes_one_to_one, validate_tracking_mode_names
 from matplotlib import pyplot as plt
 from tqdm import tqdm
 import abc
@@ -152,10 +153,9 @@ class DirectGeometry(metaclass=abc.ABCMeta):
 
         link_tolerance = 0.5
         for i in range(num_sections-1):
-            for j in range(num_modes):
-                max_index = np.argmax(overlap_matrices[i,:,j])
-                if overlap_matrices[i,max_index,j] > link_tolerance:
-                    mode_links[i,j] = max_index
+            mode_links[i] = match_modes_one_to_one(
+                overlap_matrices[i], link_tolerance, dummy_number
+            )
         
         return mode_links
     
@@ -169,7 +169,10 @@ class DirectGeometry(metaclass=abc.ABCMeta):
             - tracking_mode_names: ndarray of shape (num_section, mode_number)\n
                 new_mode_number is total number of modes appeared in the structure
         """
+        validate_tracking_mode_names(mode_links, allow_unmatched=True)
         num_sections, num_modes = mode_links.shape
+        if np.any(mode_links >= num_modes):
+            raise ValueError("Mode link predecessor index is out of range")
         num_sections += 1
 
         tracking_mode_names = np.ones(shape=(num_sections, num_modes), dtype=int) * (-1)
@@ -203,6 +206,7 @@ class DirectGeometry(metaclass=abc.ABCMeta):
         Returns:
             - reorderd data: data orderd by polarization modes. ndarray of shape (section_count, max_mode_num , ...)
         """
+        validate_tracking_mode_names(tracking_mode_names)
         num_modes = int(data.shape[1]/2)
         forward_data = deepcopy(data[:,:num_modes])
         backward_data = deepcopy(data[:,num_modes:])
@@ -231,6 +235,7 @@ class DirectGeometry(metaclass=abc.ABCMeta):
     def _generate_mode_presence(tracking_mode_names):
         """Return forward/backward masks for modes present in each section."""
 
+        validate_tracking_mode_names(tracking_mode_names)
         section_count, mode_count = tracking_mode_names.shape
         tracked_mode_count = int(tracking_mode_names.max() + 1)
         forward_present = np.zeros((section_count, tracked_mode_count), dtype=bool)
@@ -249,6 +254,7 @@ class DirectGeometry(metaclass=abc.ABCMeta):
         Returns:
             - reorderd data: data orderd by polarization modes. ndarray of shape (section_count-1, 2*max_mode_num, 2*max_mode_num )
         """
+        validate_tracking_mode_names(tracking_mode_names)
         section_count, mode_num, _ = overlap_ab.shape
         mode_num = int(mode_num/2)
         new_mode_num = tracking_mode_names.max()+1

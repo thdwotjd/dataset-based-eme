@@ -1,6 +1,7 @@
 from ..data_updater.data_updater import DataUpdater
 from copy import deepcopy
 import numpy as np
+from .mode_tracking import match_modes_one_to_one, validate_tracking_mode_names
 from matplotlib import pyplot as plt
 from tqdm import tqdm
 
@@ -308,19 +309,18 @@ class Geometry():
         Returns:
             - new_tracking_mode_names: New tracking mode names for the mutual_adj_pt overlap
         """
+        validate_tracking_mode_names(tracking_mode_names)
         num_modes = tracking_mode_names.shape[1]
-        new_tracking_mode_names = np.zeros(num_modes, dtype=int)
+        new_tracking_mode_names = np.full(num_modes, -1, dtype=int)
 
         overlap = deepcopy(overlap)
         overlap = overlap[:num_modes, :num_modes]
-        # Generate mode links for the sections between pt1 and mutual_pts    
+        # Use the same unique predecessor rule as the main EME path.
+        mode_links = match_modes_one_to_one(overlap, link_tolerance=0.5, unmatched=-1)
         for i in range(num_modes):
-            max_index = np.argmax(np.abs(overlap[:, i]))
-            if np.abs(overlap[max_index, i]) > 0.5:
-                new_tracking_mode_names[i] = tracking_mode_names[index, max_index]
-            else:
-                new_tracking_mode_names[i] = -1 # Indicating no valid link
-        
+            if mode_links[i] >= 0:
+                new_tracking_mode_names[i] = tracking_mode_names[index, mode_links[i]]
+
         return new_tracking_mode_names
     
     def match_mutual_adj_overlap(self, additional_overlap_dict, EME_path, tracking_mode_names, index_mapping):
@@ -410,10 +410,9 @@ class Geometry():
 
         link_tolerance = 0.5
         for i in range(num_sections-1):
-            for j in range(num_modes):
-                max_index = np.argmax(overlap_matrices[i,:,j])
-                if overlap_matrices[i,max_index,j] > link_tolerance:
-                    mode_links[i,j] = max_index
+            mode_links[i] = match_modes_one_to_one(
+                overlap_matrices[i], link_tolerance, dummy_number
+            )
         
         return mode_links
 
@@ -428,7 +427,10 @@ class Geometry():
             - tracking_mode_names: ndarray of shape (num_section, mode_number)\n
                 new_mode_number is total number of modes appeared in the structure
         """
+        validate_tracking_mode_names(mode_links, allow_unmatched=True)
         num_sections, num_modes = mode_links.shape
+        if np.any(mode_links >= num_modes):
+            raise ValueError("Mode link predecessor index is out of range")
         num_sections += 1
 
         tracking_mode_names = np.ones(shape=(num_sections, num_modes), dtype=int) * (-1)
@@ -458,6 +460,7 @@ class Geometry():
         Returns:
             - reorderd data: data orderd by polarization modes. ndarray of shape (section_count, max_mode_num , ...)
         """
+        validate_tracking_mode_names(tracking_mode_names)
         num_modes = int(data.shape[1]/2)
         forward_data = deepcopy(data[:,:num_modes])
         backward_data = deepcopy(data[:,num_modes:])
@@ -486,6 +489,7 @@ class Geometry():
     def _generate_mode_presence(tracking_mode_names):
         """Return forward/backward masks for modes present in each section."""
 
+        validate_tracking_mode_names(tracking_mode_names)
         section_count, mode_count = tracking_mode_names.shape
         tracked_mode_count = int(tracking_mode_names.max() + 1)
         forward_present = np.zeros((section_count, tracked_mode_count), dtype=bool)
@@ -504,6 +508,7 @@ class Geometry():
         Returns:
             - reorderd data: data orderd by polarization modes. ndarray of shape (section_count-1, 2*max_mode_num, 2*max_mode_num )
         """
+        validate_tracking_mode_names(tracking_mode_names)
         section_count, mode_num, _ = overlap_ab.shape
         mode_num = int(mode_num/2)
         new_mode_num = tracking_mode_names.max()+1
@@ -611,6 +616,8 @@ class Geometry():
             - equalized_ab: Reordered and phase-equalized overlap_ab
             - equalized_ba: Reordered and phase-equalized overlap_ba
         """
+        validate_tracking_mode_names(tracking_mode_names)
+        validate_tracking_mode_names(new_tracking_mode_names, allow_unmatched=True)
         original_mode_num = overlap_ab.shape[0] // 2
         new_mode_num = tracking_mode_names.max() + 1
 
