@@ -162,22 +162,38 @@ class CoupledFields:
     source: str = ""
 
 
+def read_mode_neff(mode, number):
+    """Read and validate the scalar needed to filter an isolated candidate."""
+    card = f"FDE::data::mode{number}"
+    try:
+        neff = complex(np.asarray(mode.getdata(card, "neff")).item())
+        if not np.isfinite(neff):
+            raise ValueError("neff is non-finite")
+        return neff
+    except Exception as exc:
+        raise ValueError(f"{card} neff export failed: {exc}") from exc
+
+
+def read_mode_card(mode, number, *, neff=None):
+    """Read one existing FDE card, reusing an effective index already read from it."""
+    card = f"FDE::data::mode{number}"
+    try:
+        return ModeFields(
+            mode.getresult(card, "E"), mode.getresult(card, "H"),
+            mode.getdata(card, "neff") if neff is None else neff,
+            mode.getdata(card, "TE polarization fraction"),
+        )
+    except Exception as exc:
+        raise ValueError(f"{card} export failed: {exc}") from exc
+
+
 def read_mode_cards(mode, returned, count, source=""):
     """Read existing FDE cards. The caller decides how the solve was obtained."""
     returned = int(np.asarray(returned).item())
     if returned < count:
         raise ValueError(f"requested {count} coupled modes, MODE returned {returned}")
-    fields = []
-    for i in range(1, count + 1):
-        card = f"FDE::data::mode{i}"
-        try:
-            fields.append(ModeFields(
-                mode.getresult(card, "E"), mode.getresult(card, "H"),
-                mode.getdata(card, "neff"), mode.getdata(card, "TE polarization fraction"),
-            ))
-        except Exception as exc:
-            raise ValueError(f"{card} export failed: {exc}") from exc
-    return CoupledFields(returned, tuple(fields), source)
+    fields = tuple(read_mode_card(mode, number) for number in range(1, count + 1))
+    return CoupledFields(returned, fields, source)
 
 
 def _canonicalize(raw, node, generation, basis_id, count):
@@ -185,9 +201,25 @@ def _canonicalize(raw, node, generation, basis_id, count):
         raise ValueError(f"requested {count} coupled modes, MODE returned {raw.returned_count}, "
                          f"with {len(raw.modes)} complete mode records")
     mode_numbers = tuple(range(1, count + 1))
+    grid, E, H, raw_neff, te_fraction = unpack_mode_fields(raw.modes, mode_numbers)
+    neff = correct_gain_modified(raw_neff)
+    with np.errstate(divide="ignore", invalid="ignore", over="ignore"):
+        E, H = normalize_field(E[None], H[None], np.asarray(grid.y), np.asarray(grid.z), 0)
+    E, H = E[0], H[0]
+    for i, (em, hm) in enumerate(zip(E, H), start=1):
+        if not np.isfinite(em).all() or not np.isfinite(hm).all():
+            raise ValueError(f"mode{i} has invalid DREME normalization (zero or non-finite integral)")
+    for array in (E, H, raw_neff, neff, te_fraction):
+        array.setflags(write=False)
+    return CanonicalNode(node, generation, basis_id, mode_numbers, count, raw.returned_count,
+                         raw_neff, neff, te_fraction, E, H, grid)
+
+
+def unpack_mode_fields(modes, mode_numbers):
+    """Validate one nonempty MODE export and unpack its unnormalized fields."""
     raw_neff, te_fraction, electric, magnetic = [], [], [], []
     grid = None
-    for i, mode in zip(mode_numbers, raw.modes):
+    for i, mode in zip(mode_numbers, modes):
         fields = []
         try:
             for name, result in (("E", mode.E), ("H", mode.H)):
@@ -213,18 +245,7 @@ def _canonicalize(raw, node, generation, basis_id, count):
         raise ValueError("neff or TE polarization fraction is non-finite")
     if np.any((te_fraction < 0) | (te_fraction > 1)):
         raise ValueError("TE polarization fraction must be in [0, 1]")
-    neff = correct_gain_modified(raw_neff)
-    with np.errstate(divide="ignore", invalid="ignore", over="ignore"):
-        E, H = normalize_field(np.asarray(electric)[None], np.asarray(magnetic)[None],
-                               np.asarray(grid.y), np.asarray(grid.z), 0)
-    E, H = E[0], H[0]
-    for i, (em, hm) in enumerate(zip(E, H), start=1):
-        if not np.isfinite(em).all() or not np.isfinite(hm).all():
-            raise ValueError(f"mode{i} has invalid DREME normalization (zero or non-finite integral)")
-    for array in (E, H, raw_neff, neff, te_fraction):
-        array.setflags(write=False)
-    return CanonicalNode(node, generation, basis_id, mode_numbers, count, raw.returned_count,
-                         raw_neff, neff, te_fraction, E, H, grid)
+    return grid, np.asarray(electric), np.asarray(magnetic), raw_neff, te_fraction
 
 
 def _atomic_write(path, data):
@@ -272,7 +293,7 @@ def geometry_sections(geometry):
 
 def acquire(dataset, geometry, open_mode, on_node):
     """Supply one solve per gap from the DataUpdater-owned MODE session."""
-    def open_reader():
+    def open_reader(_sections):
         mode = open_mode()
         adapter = LumericalSectionAdapter(mode, dataset.coupled_settings.fde)
 
@@ -285,7 +306,7 @@ def acquire(dataset, geometry, open_mode, on_node):
     return assemble(dataset, geometry, open_reader, on_node)
 
 
-def assemble(dataset, geometry, open_reader, on_node=None):
+def assemble(dataset, geometry, open_reader, on_node=None, *, finish_channels=None):
     """Normalize and save one fresh generation from any raw coupled field source."""
     if geometry.data is not dataset:
         raise ValueError("geometry must be bound to the DataUpdater assembling this dataset")
@@ -301,7 +322,7 @@ def assemble(dataset, geometry, open_reader, on_node=None):
         "field_convention": FIELD_CONVENTION,
     }
     _write_manifest(path, manifest)
-    read_node = open_reader()
+    read_node = open_reader(sections)
     neff, te_pol, overlap = {}, {}, {}
     records, edges = [], []
     previous = reference_grid = None
@@ -349,6 +370,8 @@ def assemble(dataset, geometry, open_reader, on_node=None):
         hashes[output.name] = sha256(payload).hexdigest()
     manifest.update(status="complete", nodes=records, edges=edges, export_grid=asdict(reference_grid),
                     file_sha256=hashes)
+    if finish_channels is not None:
+        manifest["channel_data_sha256"] = finish_channels(manifest)
     _write_manifest(path, manifest)
     return manifest
 

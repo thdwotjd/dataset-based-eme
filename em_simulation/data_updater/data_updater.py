@@ -202,18 +202,18 @@ class DataUpdater:
         if not hasattr(self, "coupled_settings") or self._is_testmode or self.canonical_manifest is not None:
             raise ValueError("coupled acquisition requires a new DataUpdater with coupled_settings")
 
-        def open_mode():
-            api = mode_api if mode_api is not None else globals().get("lumapi")
-            if api is None:
-                raise RuntimeError("MODE API unavailable. Pass the imported lumapi module as mode_api.")
-            try:
-                self.mode = api.MODE(hide=hide)
-            except Exception as exc:
-                raise RuntimeError(f"Could not open MODE for {self.data_directory}: {exc}") from exc
-            return self.mode
-
-        record = acquire(self, geometry, open_mode, on_node)
+        record = acquire(self, geometry, lambda: self._open_coupled_mode(mode_api, hide), on_node)
         return self._finish_coupled(record)
+
+    def _open_coupled_mode(self, mode_api, hide):
+        api = mode_api if mode_api is not None else globals().get("lumapi")
+        if api is None:
+            raise RuntimeError("MODE API unavailable. Pass the imported lumapi module as mode_api.")
+        try:
+            self.mode = api.MODE(hide=hide)
+        except Exception as exc:
+            raise RuntimeError(f"Could not open MODE for {self.data_directory}: {exc}") from exc
+        return self.mode
 
     def import_coupled(self, geometry, results, *, mode_api, on_node=None):
         """Assemble prepared external MODE results without solving any node."""
@@ -225,7 +225,7 @@ class DataUpdater:
         if geometry.data is not self:
             raise ValueError("geometry must be bound to the DataUpdater importing this dataset")
         fields = read_external_fields(geometry, results, mode_api=mode_api)
-        record = assemble(self, geometry, lambda: lambda node, section: fields.pop(node), on_node)
+        record = assemble(self, geometry, lambda _: lambda node, section: fields.pop(node), on_node)
         return self._finish_coupled(record)
 
     def _finish_coupled(self, record):
@@ -236,6 +236,12 @@ class DataUpdater:
         self._load_coupled_arrays(load_arrays)
         self._is_testmode = True
         return record
+
+    def load_channel_data(self, section_model):
+        """Load validated channel records keyed by dataset node, without opening MODE."""
+        from .channel_store import load_channel_data
+
+        return load_channel_data(self, section_model)
 
     def close_mode(self):
         """Close the MODE session owned by this updater, if opened."""

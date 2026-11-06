@@ -204,5 +204,11 @@ class LumericalSectionAdapter:
         try:
             self.prepare(section, guide_id)
             yield self.mode
-        finally:
+        except BaseException as exc:
+            try:
+                self.prepare(section)
+            except Exception as restore:
+                raise RuntimeError(f"{exc}; coupled layout restoration failed: {restore}") from exc
+            raise
+        else:
             self.prepare(section)
