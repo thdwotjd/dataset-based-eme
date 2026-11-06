@@ -4,6 +4,7 @@ from itertools import product
 from copy import deepcopy
 import gc
 import os
+from pathlib import Path
 import warnings
 import yaml
 
@@ -90,7 +91,7 @@ class DataUpdater:
         be instantiated in unit tests.
     :type is_testmode: bool
     """
-    def __init__(self, data_directory, is_testmode = False):
+    def __init__(self, data_directory, is_testmode=False, *, coupled_settings=None):
         """Build the updater and load dataset metadata.
 
         :param data_directory: Directory containing the FDE workspace and
@@ -102,6 +103,15 @@ class DataUpdater:
         """
         self.data_directory = data_directory
         self._is_testmode = is_testmode
+        from .canonical_dataset import MANIFEST
+
+        canonical_path = Path(data_directory) / MANIFEST
+        if coupled_settings is not None or canonical_path.exists():
+            self._init_coupled(coupled_settings)
+            return
+        if (not (Path(data_directory) / "dataset_info.py").is_file()
+                and (Path(data_directory) / config["file_names"]["neff"]).is_file()):
+            raise FileNotFoundError(f"Missing {MANIFEST} or dataset_info.py in {data_directory}")
         
         try:
             sys.path.append(data_directory)
@@ -139,12 +149,116 @@ class DataUpdater:
         self.neff = self.load_dict_from_pickle(self.neff_filename)
         self.TE_pol = self.load_dict_from_pickle(self.TE_pol_filename)
 
+    def _init_coupled(self, settings):
+        from .canonical_dataset import CoupledDatasetSettings, load_arrays, read_manifest
+
+        file_names = config["file_names"]
+        self.neff_filename = os.path.join(self.data_directory, file_names["neff"])
+        self.TE_pol_filename = os.path.join(self.data_directory, file_names["te_pol"])
+        self.overlap_filename = os.path.join(self.data_directory, file_names["overlap"])
+        self.mode = None
+        self.canonical_manifest = None
+        self.canonical_basis_ids = {}
+        self.section_model_configuration = None
+        if settings is None:
+            self._is_testmode = True
+            self.canonical_manifest, settings = read_manifest(self.data_directory)
+            self.section_model_configuration = self.canonical_manifest["section_model"]
+        else:
+            if self._is_testmode:
+                raise ValueError("coupled_settings starts a new acquisition and cannot be used in test mode")
+            if not isinstance(settings, CoupledDatasetSettings):
+                raise TypeError("coupled_settings must be CoupledDatasetSettings")
+            if Path(self.data_directory).exists():
+                raise FileExistsError(f"Choose a new coupled dataset directory: {self.data_directory}")
+            settings = CoupledDatasetSettings.from_configuration(settings.configuration())
+        self.coupled_settings = self.data_info = settings
+        self.parameter_names = self.get_parameter_names()
+        self.parameter_types = self.get_parameter_types()
+        self.parameter_grid = self.get_parameter_grid()
+        self.mode_numbers = self.get_mode_numbers()
+        self.crosssection_x = self.get_crosssection_x()
+        self.crosssection_y = self.get_crosssection_y()
+        self.wavelength = self.get_wavelength()
+        if self.canonical_manifest is None:
+            self.neff, self.TE_pol, self.overlap = {}, {}, {}
+        else:
+            self._load_coupled_arrays(load_arrays)
+
+    def _load_coupled_arrays(self, load_arrays):
+        try:
+            self.canonical_basis_ids, arrays = load_arrays(self, self.canonical_manifest)
+        except (KeyError, TypeError, ValueError) as exc:
+            raise ValueError(f"Invalid canonical dataset {self.data_directory}: {exc}") from exc
+        self.neff, self.TE_pol, self.overlap = arrays["neff"], arrays["TE_pol"], arrays["overlap"]
+
+    def acquire_coupled(self, geometry, *, mode_api=None, on_node=None, hide=False):
+        """Create one fresh canonical generation. on_node receives transient normalized fields.
+
+        The session belongs to this updater and stays open until close_mode().
+        """
+        from .canonical_dataset import acquire
+
+        if not hasattr(self, "coupled_settings") or self._is_testmode or self.canonical_manifest is not None:
+            raise ValueError("coupled acquisition requires a new DataUpdater with coupled_settings")
+
+        def open_mode():
+            api = mode_api if mode_api is not None else globals().get("lumapi")
+            if api is None:
+                raise RuntimeError("MODE API unavailable. Pass the imported lumapi module as mode_api.")
+            try:
+                self.mode = api.MODE(hide=hide)
+            except Exception as exc:
+                raise RuntimeError(f"Could not open MODE for {self.data_directory}: {exc}") from exc
+            return self.mode
+
+        record = acquire(self, geometry, open_mode, on_node)
+        return self._finish_coupled(record)
+
+    def import_coupled(self, geometry, results, *, mode_api, on_node=None):
+        """Assemble prepared external MODE results without solving any node."""
+        from .canonical_dataset import assemble
+        from .external_mode import read_external_fields
+
+        if not hasattr(self, "coupled_settings") or self._is_testmode or self.canonical_manifest is not None:
+            raise ValueError("coupled import requires a new DataUpdater with coupled_settings")
+        if geometry.data is not self:
+            raise ValueError("geometry must be bound to the DataUpdater importing this dataset")
+        fields = read_external_fields(geometry, results, mode_api=mode_api)
+        record = assemble(self, geometry, lambda: lambda node, section: fields.pop(node), on_node)
+        return self._finish_coupled(record)
+
+    def _finish_coupled(self, record):
+        from .canonical_dataset import load_arrays
+
+        self.canonical_manifest = record
+        self.section_model_configuration = record["section_model"]
+        self._load_coupled_arrays(load_arrays)
+        self._is_testmode = True
+        return record
+
+    def close_mode(self):
+        """Close the MODE session owned by this updater, if opened."""
+        mode = getattr(self, "mode", None)
+        if mode is not None:
+            mode.close()
+            self.mode = None
+
+    def require_canonical_path(self, path):
+        from .canonical_dataset import require_path
+
+        if self.canonical_manifest is None:
+            raise ValueError(f"Canonical dataset has not been acquired: {self.data_directory}")
+        require_path(self, path)
+
     def update_dataset(self, parameter_names, parameter_values):
         """
         parameter_names: list of str
         parameter_values: list of list which min, max values of the parameter
             e.g) [[0, 50000], [1e-6, 1.5e-6]]
         """
+        if hasattr(self, "coupled_settings"):
+            raise ValueError("Canonical datasets require a fresh acquire_coupled generation")
         parameter_names_ref = self.get_parameter_names()
         parameter_grid = self.get_parameter_grid()
 
@@ -308,7 +422,7 @@ class DataUpdater:
 
 
     def save_data(self):
-        if self._is_testmode:
+        if hasattr(self, "coupled_settings") or self._is_testmode:
             return
         self.save_dict_to_pickle(self.overlap, self.overlap_filename)
         self.save_dict_to_pickle(self.neff, self.neff_filename)
@@ -316,6 +430,17 @@ class DataUpdater:
         pass
 
     def load_data(self):
+        if hasattr(self, "coupled_settings"):
+            from .canonical_dataset import load_arrays, read_manifest
+
+            record, settings = read_manifest(self.data_directory)
+            if (settings != self.coupled_settings
+                    or record["section_model"] != self.section_model_configuration
+                    or record["generation_id"] != self.canonical_manifest["generation_id"]):
+                raise ValueError("Canonical generation/settings changed. Reopen the dataset.")
+            self.canonical_manifest = record
+            self._load_coupled_arrays(load_arrays)
+            return
         self.overlap = self.load_dict_from_pickle(self.overlap_filename)
         self.neff = self.load_dict_from_pickle(self.neff_filename)
         self.TE_pol = self.load_dict_from_pickle(self.TE_pol_filename)
@@ -346,6 +471,8 @@ class DataUpdater:
         pass
 
     def calc_data_point(self, parameter_point):
+        if hasattr(self, "coupled_settings"):
+            raise ValueError("Canonical datasets require a fresh acquire_coupled generation")
         print("calc_data_point() is deprecated")
         adj_points = self.get_adjacent_points(parameter_point)
         self.set_FDE_sweep(parameter_point, adj_points)
@@ -357,6 +484,8 @@ class DataUpdater:
         self.TE_pol[parameter_point] = TE_pol
     
     def calc_data_point_modified(self, parameter_point):
+        if hasattr(self, "coupled_settings"):
+            raise ValueError("Canonical datasets require a fresh acquire_coupled generation")
         is_calculated = 0
         adj_points = self.get_adjacent_points(parameter_point)
         adj_points = self.filter_out_calculated_points(parameter_point, adj_points)
@@ -480,8 +609,9 @@ class DataUpdater:
             overlap_ab: <E_a, H_b>
             overlap_ba: <E_b, H_a> where a is section nearer to the input port and b is section nearer to output port
         """
-        overlap_ab = np.zeros(shape=(len(simul_params)-1, 2*self.mode_numbers, 2*self.mode_numbers), dtype =np.complex64)
-        overlap_ba = np.zeros(shape=(len(simul_params)-1, 2*self.mode_numbers, 2*self.mode_numbers), dtype =np.complex64)
+        dtype = np.complex128 if hasattr(self, "coupled_settings") else np.complex64
+        overlap_ab = np.zeros((len(simul_params)-1, 2*self.mode_numbers, 2*self.mode_numbers), dtype=dtype)
+        overlap_ba = np.zeros_like(overlap_ab)
 
         for i in range(len(simul_params)-1):
             if simul_params[i] == simul_params[i+1]:
@@ -494,14 +624,16 @@ class DataUpdater:
         return overlap_ab, overlap_ba
 
     def get_neffs(self, simul_params):
-        neffs = np.zeros(shape = (len(simul_params), 2*self.mode_numbers), dtype = np.complex64)
+        dtype = np.complex128 if hasattr(self, "coupled_settings") else np.complex64
+        neffs = np.zeros((len(simul_params), 2*self.mode_numbers), dtype=dtype)
         for i in range(len(simul_params)):
             point = simul_params[i]
             neffs[i] = deepcopy(self.neff[point])
         return neffs
 
     def get_TE_pols(self, simul_params):
-        TE_pols = np.zeros(shape = (len(simul_params), 2*self.mode_numbers), dtype =np.float16)
+        dtype = float if hasattr(self, "coupled_settings") else np.float16
+        TE_pols = np.zeros((len(simul_params), 2*self.mode_numbers), dtype=dtype)
         for i in range(len(simul_params)):
             point = simul_params[i]
             TE_pols[i] = deepcopy(self.TE_pol[point])

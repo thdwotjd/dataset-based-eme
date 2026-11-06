@@ -17,6 +17,8 @@ class SingleRunner():
             return 0
         
         self._radiation_mode_mask = propagator_instance.output_data["radiation_mode_mask"]
+        basis = propagator_instance.output_data.get("runtime_basis")
+        self._canonical_input_slots = basis[0].guided_slots if basis is not None else None
         if not propagator_instance._is_smatrix_calculated:
             propagator_instance.calc_Smatrix()
         self._propagator_instance = propagator_instance
@@ -319,8 +321,8 @@ class SingleRunner():
         It checks the input amplitudes shape
         """
         initial_mode_mask = self._radiation_mode_mask[0]
-        non_rad_count = np.count_nonzero(initial_mode_mask == False)
-
+        slots = getattr(self, "_canonical_input_slots", None)
+        non_rad_count = np.count_nonzero(~initial_mode_mask) if slots is None else len(slots)
         if input_amplitudes.shape == (non_rad_count,):
             return 1
         else:
@@ -329,6 +331,11 @@ class SingleRunner():
         
     def _convert_input(self, input_amplitudes):
         total_mode_num = self._radiation_mode_mask.shape[1]
+        slots = getattr(self, "_canonical_input_slots", None)
+        if slots is not None:
+            full = np.zeros(total_mode_num, dtype=input_amplitudes.dtype)
+            full[slots] = input_amplitudes
+            return full
         initial_mode_mask = self._radiation_mode_mask[0]
         non_rad_count = np.count_nonzero(initial_mode_mask == False)
         rad_count = total_mode_num - non_rad_count

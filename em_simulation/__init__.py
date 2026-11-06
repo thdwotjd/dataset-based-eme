@@ -1,4 +1,6 @@
 from .data_updater.data_updater import DataUpdater
+from .data_updater.canonical_dataset import CoupledDatasetSettings
+from .data_updater.lumerical_section import FDEConfig
 from .data_extractor.data_extractor import DataExtractor
 
 from .geometry.coupled_waveguide.cross_section import StraightGapSectionModel, WaveguideStack

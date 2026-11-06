@@ -2,6 +2,7 @@ from ..data_updater.data_updater import DataUpdater
 from copy import deepcopy
 import numpy as np
 from .mode_tracking import match_modes_one_to_one, validate_tracking_mode_names
+from .runtime_basis import canonical_runtime_edges, runtime_sections
 from matplotlib import pyplot as plt
 from tqdm import tqdm
 
@@ -39,8 +40,12 @@ class Geometry():
         simul_params, delta_zs = self.calc_simulation_parameters()
         delta_zs = np.array(delta_zs) # wrap the list into np array
         self.simulation_parameters = simul_params
-        extended_simul_params, additional_param_dict = self.get_extended_simul_params(simul_params)
-        self.update_dataset(extended_simul_params)
+        canonical_ids = getattr(self.data, "canonical_basis_ids", None)
+        if canonical_ids is None:
+            extended_simul_params, _ = self.get_extended_simul_params(simul_params)
+            self.update_dataset(extended_simul_params)
+        else:
+            self.data.require_canonical_path(simul_params)
 
         # get data from dataset
         EME_path, EME_delta_zs, multi_adj_index, index_mapping = self.interp_multi_adj_pts(simul_params, delta_zs)
@@ -53,8 +58,13 @@ class Geometry():
         # if mode number is limited, do limiting process
         num_sections, mode_numbers = neff.shape
         mode_numbers = int(mode_numbers/2)
+        if canonical_ids is not None:
+            canonical_ab, canonical_ba = overlap_ab, overlap_ba
+            selected = np.arange(mode_numbers)
         if self._limit_mode_number and mode_numbers > self._limit_mode_number:
             neff, TE_pol, overlap_ab, overlap_ba = self._reduce_mode_number(neff, TE_pol, overlap_ab, overlap_ba)
+            if canonical_ids is not None:
+                selected = selected[:self._limit_mode_number]
             additional_overlap_dict = self._reduce_mode_number_overlap_dict(additional_overlap_dict)
 
         # reorder data by best overlap modes
@@ -66,18 +76,20 @@ class Geometry():
 
         neff = self._reorder_data(tracking_mode_names, neff)
         TE_pol = self._reorder_data(tracking_mode_names, TE_pol)
-        overlap_ab, overlap_ba = self._reorder_overlap(tracking_mode_names, overlap_ab, overlap_ba)
-
-        # reorder additional overlap
-        additional_overlap_dict = self.match_mutual_adj_overlap(additional_overlap_dict, EME_path, tracking_mode_names, index_mapping)
-        # equalize overlap phase
-        overlap_ab, overlap_ba, additional_overlap_dict = self._equalize_overlap_phase(
-            overlap_ab,
-            overlap_ba,
-            mode_present,
-            additional_overlap_dict,
-            index_mapping,
-        )
+        if canonical_ids is not None:
+            forward_slots = mode_present.shape[1] // 2
+            transforms, overlap_ab, overlap_ba = canonical_runtime_edges(
+                canonical_ab, canonical_ba, selected, tracking_mode_names,
+                mode_present[:, :forward_slots],
+            )
+        else:
+            overlap_ab, overlap_ba = self._reorder_overlap(tracking_mode_names, overlap_ab, overlap_ba)
+            additional_overlap_dict = self.match_mutual_adj_overlap(
+                additional_overlap_dict, EME_path, tracking_mode_names, index_mapping,
+            )
+            overlap_ab, overlap_ba, additional_overlap_dict = self._equalize_overlap_phase(
+                overlap_ab, overlap_ba, mode_present, additional_overlap_dict, index_mapping,
+            )
         
 
         # additional data
@@ -100,8 +112,19 @@ class Geometry():
         output_data["EME_path"] = EME_path
         output_data["additional_overlap_dict"] = additional_overlap_dict
         output_data["index_mapping"] = index_mapping    # path index mapping from EME_path to simul_params path
+        if canonical_ids is not None:
+            output_data["runtime_basis"] = runtime_sections(
+                EME_path, canonical_ids, transforms, mode_present[:, :forward_slots],
+                radiation_mode_mask[:, :forward_slots],
+            )
         self.output_data = output_data
         return output_data
+
+    def runtime_basis_at(self, section_index):
+        """Return the canonical basis transform for an EME section (0/-1 for endpoints)."""
+        if self.output_data is None or "runtime_basis" not in self.output_data:
+            raise ValueError("Runtime basis requires prepared EME output from a canonical dataset")
+        return self.output_data["runtime_basis"][section_index]
     
     def calc_simulation_parameters(self):
         """
@@ -784,10 +807,10 @@ class Geometry():
         num_sections, mode_numbers = neff.shape
         mode_numbers = int(mode_numbers/2)
 
-        overlap_ab_new = np.zeros(shape = (num_sections-1, 2*self._limit_mode_number, 2*self._limit_mode_number), dtype = np.complex64)
-        overlap_ba_new = np.zeros(shape = (num_sections-1, 2*self._limit_mode_number, 2*self._limit_mode_number), dtype = np.complex64)
-        neff_new = np.zeros(shape = (num_sections, 2*self._limit_mode_number), dtype=np.complex64)
-        TE_pol_new = np.zeros(shape=(num_sections, 2*self._limit_mode_number), dtype=np.float16)
+        overlap_ab_new = np.zeros((num_sections-1, 2*self._limit_mode_number, 2*self._limit_mode_number), dtype=overlap_ab.dtype)
+        overlap_ba_new = np.zeros_like(overlap_ab_new)
+        neff_new = np.zeros((num_sections, 2*self._limit_mode_number), dtype=neff.dtype)
+        TE_pol_new = np.zeros((num_sections, 2*self._limit_mode_number), dtype=TE_pol.dtype)
 
         overlap_ab_new[:, :self._limit_mode_number, :self._limit_mode_number] = overlap_ab[:,:self._limit_mode_number,:self._limit_mode_number]
         overlap_ab_new[:, :self._limit_mode_number, self._limit_mode_number:] = \
