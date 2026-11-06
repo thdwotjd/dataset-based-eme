@@ -1,6 +1,10 @@
 from .data_updater.data_updater import DataUpdater
 from .data_extractor.data_extractor import DataExtractor
 
+from .geometry.coupled_waveguide.cross_section import StraightGapSectionModel, WaveguideStack
+from .geometry.coupled_waveguide.double_waveguide import DoubleWaveguide
+from .geometry.coupled_waveguide.straight_gap_coupler import StraightGapCoupler
+from .geometry.parameter_path import profile_from_samples
 from .geometry.single_waveguide.single_tapers.direct_linear_taper import DirectLinearTaper
 from .geometry.single_waveguide.direct_single_partial_euler import DirectSinglePartialEuler
 from .geometry.single_waveguide.direct_single_partial_euler import DirectSingleEuler
