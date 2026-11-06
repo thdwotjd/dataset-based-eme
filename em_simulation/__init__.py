@@ -28,3 +28,4 @@ from .propagator.eme import EME
 from .propagator.stability import EMEStabilityConfig
 
 from .runner.runner import Runner
+from .channels.channel_runner import ChannelResult, ChannelRunner

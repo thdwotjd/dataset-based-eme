@@ -26,6 +26,7 @@ class SingleEME(Propagator):
         neff_interpolation=False,
     ):
         super().__init__(geometry, force_passive=force_passive, force_unitary=force_unitary)
+        self.geometry = geometry
 
         self.overlap_forward_ab = np.asarray(
             self.output_data["overlap_ab"][:,:self.mode_count, :self.mode_count],
@@ -140,6 +141,14 @@ class SingleEME(Propagator):
             lengths_per_matrix[2*i] = delta_zs[i]
 
         self._lengths_per_matrix = lengths_per_matrix*length_ratio
+        self._is_smatrix_calculated = True
+        # Interface diagnostics depend on the unchanged modal overlaps. Feedback
+        # diagnostics belong to the old propagation length.
+        diagnostics = self.stability_diagnostics
+        diagnostics["feedback_fallbacks"] = []
+        diagnostics["status"] = "regularized" if diagnostics["interface_events"] else "normal"
+        if self.stability_config.pml_mode_sink:
+            diagnostics["pml_sink_mode_steps"] = int(np.count_nonzero(self._pml_mode_mask()))
 
 
         print("Total Length is changed to ", str(new_length * 1e6), "um")

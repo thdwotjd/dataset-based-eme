@@ -58,6 +58,14 @@ class SingleRunner():
         }
 
         
+    def _refresh_smatrix(self):
+        propagator = self._propagator_instance
+        if self._smatrix is not propagator.smatrix:
+            self._smatrix = propagator.smatrix
+            self.stability_diagnostics = getattr(propagator, "stability_diagnostics", None)
+            self._lumped_smatrix = None
+            self._is_lumped_smatrix_calculated = False
+
     #region main functions
     def propagate(self, input_amplitudes: list):
         """Propagate through each segment and record sectional amplitudes.
@@ -70,6 +78,7 @@ class SingleRunner():
         input_amplitudes = np.array(input_amplitudes)
         if not self._is_input_amplitudes_okay(input_amplitudes): return
         input_amplitudes = self._convert_input(input_amplitudes)
+        self._refresh_smatrix()
         self.input_amplitudes = input_amplitudes
         
             
@@ -287,8 +296,21 @@ class SingleRunner():
         :returns: Output amplitudes after the lumped matrix.
         :rtype: np.ndarray
         """
+        input_amplitudes = np.array(input_amplitudes)
+        if not self._is_input_amplitudes_okay(input_amplitudes): return
+        return self._apply_lumped_smatrix(self._convert_input(input_amplitudes))
+
+    def propagate_basis_amplitudes(self, input_amplitudes):
+        """Propagate a complete vector in the prepared scattering basis."""
+        amplitudes = np.asarray(input_amplitudes, dtype=np.complex128)
+        if amplitudes.shape != (2 * self._mode_count,) or not np.isfinite(amplitudes).all():
+            raise ValueError(f"Full-basis input requires {2 * self._mode_count} finite amplitudes")
+        return self._apply_lumped_smatrix(amplitudes)
+
+    def _apply_lumped_smatrix(self, input_amplitudes):
+        self._refresh_smatrix()
         if not self._is_lumped_smatrix_calculated:
-            smatrix = deepcopy(self._smatrix)
+            smatrix = self._smatrix
             length = self._smatrix.shape[0]
             accumulated_smatrix = np.eye(2*self._mode_count)
             for i in range(length):
@@ -301,13 +323,8 @@ class SingleRunner():
                 )
             self._lumped_smatrix = accumulated_smatrix
             self._is_lumped_smatrix_calculated = True
-        
-        input_amplitudes = np.array(input_amplitudes)
-        if not self._is_input_amplitudes_okay(input_amplitudes): return
-        input_amplitudes = self._convert_input(input_amplitudes)
 
-        result = self._lumped_smatrix @ input_amplitudes
-        return result
+        return self._lumped_smatrix @ input_amplitudes
     
     #endregion main functions
     

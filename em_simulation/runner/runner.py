@@ -26,6 +26,17 @@ class Runner():
             self.runner = runner
             self._is_multirunner = 0
     
+    @property
+    def propagator(self):
+        """The prepared propagator used by this runner."""
+        return self.runner._propagator_instance
+
+    def propagate_basis_amplitudes(self, input_amplitudes):
+        """Apply the lumped S-matrix to all left-forward and right-backward slots."""
+        if self._is_multirunner:
+            raise ValueError("Full-basis propagation requires a single propagator")
+        return self.runner.propagate_basis_amplitudes(input_amplitudes)
+
     def propagate(self, input_amplitudes: list):
         """Propagate through each segment and record sectional amplitudes.
 
