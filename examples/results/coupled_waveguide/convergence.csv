@@ -1,0 +1,25 @@
+check,case,channel,last_minus_first_pp
+FDTD time 3 to 6 ps,uniform,bus_TE0,-0.0002679988494125318
+FDTD time 3 to 6 ps,uniform,bus_TM0,-2.7992796955214016e-09
+FDTD time 3 to 6 ps,uniform,bus_TE1,1.3992936575410648e-06
+FDTD time 3 to 6 ps,uniform,ring_TE0,-0.00013057030846252982
+FDTD time 3 to 6 ps,uniform,ring_TM0,2.803588337685322e-07
+FDTD time 3 to 6 ps,uniform,ring_TE1,1.3557253766021034e-06
+FDTD mesh 20.27 to 12.5 nm,uniform,bus_TE0,-0.6337683224034163
+FDTD mesh 20.27 to 12.5 nm,uniform,bus_TM0,1.1425909278990773e-06
+FDTD mesh 20.27 to 12.5 nm,uniform,bus_TE1,-0.002323249454293709
+FDTD mesh 20.27 to 12.5 nm,uniform,ring_TE0,0.45994065003082363
+FDTD mesh 20.27 to 12.5 nm,uniform,ring_TM0,-2.015810256607148e-06
+FDTD mesh 20.27 to 12.5 nm,uniform,ring_TE1,0.002494465801819215
+FDTD mesh 20.27 to 12.5 nm,moving,bus_TE0,-0.20477581503773878
+FDTD mesh 20.27 to 12.5 nm,moving,bus_TM0,-3.251887847775978e-05
+FDTD mesh 20.27 to 12.5 nm,moving,bus_TE1,-0.00035140552043526417
+FDTD mesh 20.27 to 12.5 nm,moving,ring_TE0,0.7125737346890676
+FDTD mesh 20.27 to 12.5 nm,moving,ring_TM0,-3.918164563062961e-05
+FDTD mesh 20.27 to 12.5 nm,moving,ring_TE1,-0.011312906197857213
+FDTD time 6 to 12 ps,moving,bus_TE0,0.009429105768921087
+FDTD time 6 to 12 ps,moving,bus_TM0,4.5985504486513014e-08
+FDTD time 6 to 12 ps,moving,bus_TE1,2.074185956353354e-06
+FDTD time 6 to 12 ps,moving,ring_TE0,0.0006976701366526172
+FDTD time 6 to 12 ps,moving,ring_TM0,6.170774553138452e-10
+FDTD time 6 to 12 ps,moving,ring_TE1,7.196741049526488e-06

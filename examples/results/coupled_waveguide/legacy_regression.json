@@ -1,0 +1,267 @@
+{
+  "pre_coupled_commit": "747810b67744efc44234af11d9b5ee957ca87910",
+  "current_core_commit": "64ff14135c0533a7d7a077be49c3d313039810cc",
+  "environment": "env310",
+  "bend": {
+    "case": "50 um effective-radius SiN partial Euler, TE0/TE1 inputs, with and without interpolation",
+    "dataset": "D:\\data\\SongJaesung\\git\\dataset-based-eme-coupled-waveguide\\sample_datasets\\w_5um_curv_01000pm",
+    "base_vs_current_max_fractional_power_difference": 0.0,
+    "archived_csv_max_fractional_power_difference": 6.642937660211734e-05,
+    "base": [
+      {
+        "case": "SiN_partial_euler_50um",
+        "input": "TE0",
+        "output": "TE0",
+        "neff_interpolation": false,
+        "actual": 0.5751141905784607,
+        "archived": 0.5750958323478699
+      },
+      {
+        "case": "SiN_partial_euler_50um",
+        "input": "TE0",
+        "output": "TE1",
+        "neff_interpolation": false,
+        "actual": 0.21817931532859802,
+        "archived": 0.2181697934865951
+      },
+      {
+        "case": "SiN_partial_euler_50um",
+        "input": "TE0",
+        "output": "TE2+",
+        "neff_interpolation": false,
+        "actual": 0.20546391606330872,
+        "archived": 0.2054792046546936
+      },
+      {
+        "case": "SiN_partial_euler_50um",
+        "input": "TE1",
+        "output": "TE0",
+        "neff_interpolation": false,
+        "actual": 0.21817931532859802,
+        "archived": 0.2181737422943115
+      },
+      {
+        "case": "SiN_partial_euler_50um",
+        "input": "TE1",
+        "output": "TE1",
+        "neff_interpolation": false,
+        "actual": 0.6402297019958496,
+        "archived": 0.6401962041854858
+      },
+      {
+        "case": "SiN_partial_euler_50um",
+        "input": "TE1",
+        "output": "TE2+",
+        "neff_interpolation": false,
+        "actual": 0.1337740570306778,
+        "archived": 0.1338404864072799
+      },
+      {
+        "case": "SiN_partial_euler_50um",
+        "input": "TE0",
+        "output": "TE0",
+        "neff_interpolation": true,
+        "actual": 0.5289922952651978,
+        "archived": 0.5289760828018188
+      },
+      {
+        "case": "SiN_partial_euler_50um",
+        "input": "TE0",
+        "output": "TE1",
+        "neff_interpolation": true,
+        "actual": 0.2688659429550171,
+        "archived": 0.2688531577587127
+      },
+      {
+        "case": "SiN_partial_euler_50um",
+        "input": "TE0",
+        "output": "TE2+",
+        "neff_interpolation": true,
+        "actual": 0.2007833570241928,
+        "archived": 0.2007989883422851
+      },
+      {
+        "case": "SiN_partial_euler_50um",
+        "input": "TE1",
+        "output": "TE0",
+        "neff_interpolation": true,
+        "actual": 0.2689008116722107,
+        "archived": 0.2688940763473511
+      },
+      {
+        "case": "SiN_partial_euler_50um",
+        "input": "TE1",
+        "output": "TE1",
+        "neff_interpolation": true,
+        "actual": 0.6062270998954773,
+        "archived": 0.6061968803405762
+      },
+      {
+        "case": "SiN_partial_euler_50um",
+        "input": "TE1",
+        "output": "TE2+",
+        "neff_interpolation": true,
+        "actual": 0.11657051742076874,
+        "archived": 0.1166303381323814
+      }
+    ],
+    "current": [
+      {
+        "case": "SiN_partial_euler_50um",
+        "input": "TE0",
+        "output": "TE0",
+        "neff_interpolation": false,
+        "actual": 0.5751141905784607,
+        "archived": 0.5750958323478699
+      },
+      {
+        "case": "SiN_partial_euler_50um",
+        "input": "TE0",
+        "output": "TE1",
+        "neff_interpolation": false,
+        "actual": 0.21817931532859802,
+        "archived": 0.2181697934865951
+      },
+      {
+        "case": "SiN_partial_euler_50um",
+        "input": "TE0",
+        "output": "TE2+",
+        "neff_interpolation": false,
+        "actual": 0.20546391606330872,
+        "archived": 0.2054792046546936
+      },
+      {
+        "case": "SiN_partial_euler_50um",
+        "input": "TE1",
+        "output": "TE0",
+        "neff_interpolation": false,
+        "actual": 0.21817931532859802,
+        "archived": 0.2181737422943115
+      },
+      {
+        "case": "SiN_partial_euler_50um",
+        "input": "TE1",
+        "output": "TE1",
+        "neff_interpolation": false,
+        "actual": 0.6402297019958496,
+        "archived": 0.6401962041854858
+      },
+      {
+        "case": "SiN_partial_euler_50um",
+        "input": "TE1",
+        "output": "TE2+",
+        "neff_interpolation": false,
+        "actual": 0.1337740570306778,
+        "archived": 0.1338404864072799
+      },
+      {
+        "case": "SiN_partial_euler_50um",
+        "input": "TE0",
+        "output": "TE0",
+        "neff_interpolation": true,
+        "actual": 0.5289922952651978,
+        "archived": 0.5289760828018188
+      },
+      {
+        "case": "SiN_partial_euler_50um",
+        "input": "TE0",
+        "output": "TE1",
+        "neff_interpolation": true,
+        "actual": 0.2688659429550171,
+        "archived": 0.2688531577587127
+      },
+      {
+        "case": "SiN_partial_euler_50um",
+        "input": "TE0",
+        "output": "TE2+",
+        "neff_interpolation": true,
+        "actual": 0.2007833570241928,
+        "archived": 0.2007989883422851
+      },
+      {
+        "case": "SiN_partial_euler_50um",
+        "input": "TE1",
+        "output": "TE0",
+        "neff_interpolation": true,
+        "actual": 0.2689008116722107,
+        "archived": 0.2688940763473511
+      },
+      {
+        "case": "SiN_partial_euler_50um",
+        "input": "TE1",
+        "output": "TE1",
+        "neff_interpolation": true,
+        "actual": 0.6062270998954773,
+        "archived": 0.6061968803405762
+      },
+      {
+        "case": "SiN_partial_euler_50um",
+        "input": "TE1",
+        "output": "TE2+",
+        "neff_interpolation": true,
+        "actual": 0.11657051742076874,
+        "archived": 0.1166303381323814
+      }
+    ]
+  },
+  "taper": {
+    "case": "Si_linear_taper_1p0_to_1p2um_20um",
+    "dataset": "D:\\data\\SongJaesung\\git\\dataset-based-eme-coupled-waveguide\\sample_datasets\\Si_rectangular_single_waveguide",
+    "max_complex_difference_lumped_vs_section": 2.0202871214071978e-08,
+    "forward_amplitudes_real_imag": [
+      [
+        -0.5973047218504876,
+        -0.7975844119643728
+      ],
+      [
+        -9.959877613760515e-08,
+        6.300409078476674e-08
+      ],
+      [
+        1.5957237153994744e-07,
+        -5.511048100204798e-08
+      ],
+      [
+        0.08370825386905398,
+        0.016801103168041148
+      ],
+      [
+        -0.000336986889402566,
+        0.00042920044498455113
+      ],
+      [
+        1.8315712122796636e-07,
+        -9.069166663701818e-07
+      ],
+      [
+        6.456976395659122e-07,
+        3.064126834813764e-07
+      ],
+      [
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "scope": "Normal SingleWaveguide entry and cached dataset smoke check. No archived physical taper acceptance reference."
+  },
+  "existing_tests": {
+    "command": "python -B -m unittest discover -s em_simulation -t .",
+    "environment": "lumeric",
+    "passed": 84,
+    "failures": 0,
+    "errors": 0,
+    "expected_warning": "guided count changes in the synthetic acquisition inventory test"
+  }
+}

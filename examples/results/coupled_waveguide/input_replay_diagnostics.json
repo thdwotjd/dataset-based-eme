@@ -1,0 +1,33 @@
+[
+  {
+    "case": "uniform",
+    "basis_id": "645f462a89714b9e940c7fcd2144d43b:32",
+    "measured_forward_W": 0.9995940235836019,
+    "represented_guided_input_W": 0.999564186738106,
+    "measured_to_guided_fit_EH_residual": {
+      "E": 0.008391936698733267,
+      "H": 0.004582048120192908
+    },
+    "mapped_to_measured_guided_EH_residual_after_power_and_phase_alignment": {
+      "E": 0.005273310512966907,
+      "H": 0.004114537765197358
+    },
+    "scope": "Only the stored five guided coupled input modes are replayed. All 24 output modes are retained. This does not reproduce unrepresented incident fields.",
+    "uniform_exact_complex_phase_max_coefficient_error": 1.5586408350151279e-13
+  },
+  {
+    "case": "moving",
+    "basis_id": "645f462a89714b9e940c7fcd2144d43b:32",
+    "measured_forward_W": 0.9995954139800081,
+    "represented_guided_input_W": 0.9995655021639249,
+    "measured_to_guided_fit_EH_residual": {
+      "E": 0.008399352351820311,
+      "H": 0.004587387344318813
+    },
+    "mapped_to_measured_guided_EH_residual_after_power_and_phase_alignment": {
+      "E": 0.005261629862197915,
+      "H": 0.004108434930666331
+    },
+    "scope": "Only the stored five guided coupled input modes are replayed. All 24 output modes are retained. This does not reproduce unrepresented incident fields."
+  }
+]

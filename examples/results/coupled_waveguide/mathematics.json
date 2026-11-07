@@ -1,0 +1,23 @@
+{
+  "saved_node_baselines_rechecked": 33,
+  "saved_baseline_max_direct_matrix_power_error_W": 7.105427357601002e-15,
+  "saved_baseline_max_residual_squared_error_over_direct_plus_reference": 1.6434018623624054e-15,
+  "fresh_endpoint_direct_reconstruction": "pass, reloaded guided coupled and all isolated E/H",
+  "endpoint_basis_id": "645f462a89714b9e940c7fcd2144d43b:32",
+  "endpoint_guided_mode_indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "endpoint_max_scaled_product_errors": {
+    "power": 2.1586898935055403e-14,
+    "E": 2.1566336667845632e-14,
+    "H": 1.6848844456415897e-14
+  },
+  "phase_permutation_scaling_invariance": "pass",
+  "max_output_coefficient_invariance_error": 2.2422936607558627e-16,
+  "max_power_invariance_error_W": 2.6645352591003757e-15,
+  "scope": "All nodes use direct integrals recorded during acquisition. Fresh E/H is available only for the guided coupled subset at 250 nm."
+}

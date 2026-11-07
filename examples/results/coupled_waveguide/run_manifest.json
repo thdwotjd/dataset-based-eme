@@ -1,0 +1,3065 @@
+{
+  "analysis_code_sha256": "3279bd92bb1065149c460d53dd465f733a10b990a82e363b7c2433c888b96d52",
+  "cases": [
+    {
+      "series": "tidy3d_c6_source_aligned_ppw22",
+      "case": "uniform",
+      "result_path": "C:\\Users\\Jaesung\\DREME\\coupled_waveguide_runs\\tidy3d_c6_source_aligned_ppw22\\uniform\\result.hdf5",
+      "result_sha256": "7102086569573dbce3a058ee6c9cc26cd55431b8987820ef45e1e1ea6e5d6643",
+      "task": {
+        "task_id": "fdve-0680630f-bb2f-4c22-ade5-7d1e391a3aa5",
+        "solver_version_requested": null,
+        "max_flexcredits": 0.44691841471474836,
+        "final_status": "success",
+        "solver_version": null,
+        "actual_flexcredits": 0.44691841471474836
+      },
+      "source_manifest_sha256": "be25df71b940ed25ecabee86c041e95b822d168f2dfc67197af12f20753eef4f",
+      "simulation_sha256": "cf440482040cec8155925ab53eefdb6cc5c29859d8d93497418469e7ef0f702a",
+      "settings": {
+        "case": "uniform",
+        "git_head": "64ff14135c0533a7d7a077be49c3d313039810cc",
+        "comparison_code_sha256": "b8f13ccb26897bc33d46f7eac980e3c3ad4702bbac0a617834d585767a54d643",
+        "python": "3.10.16",
+        "tidy3d": "2.12.0",
+        "numpy": "2.2.6",
+        "dataset": "C:\\Users\\Jaesung\\DREME\\coupled_waveguide_runs\\soi220_power_debug_33nodes_24modes_mesh352x208_20261106_205757",
+        "dataset_generation_id": "645f462a89714b9e940c7fcd2144d43b",
+        "coarse_dataset": {
+          "path": "C:\\Users\\Jaesung\\DREME\\coupled_waveguide_runs\\soi220_power_debug_17nodes_24modes_mesh352x208_20261106_204648",
+          "generation_id": "0a32d8c06e9548758cf19cdba342e1c1",
+          "gap_grid_m": [
+            1.5000000000000002e-07,
+            1.5625e-07,
+            1.625e-07,
+            1.6875e-07,
+            1.7500000000000002e-07,
+            1.8125e-07,
+            1.875e-07,
+            1.9375000000000002e-07,
+            2.0000000000000002e-07,
+            2.0625e-07,
+            2.125e-07,
+            2.1875000000000002e-07,
+            2.2500000000000002e-07,
+            2.3125e-07,
+            2.375e-07,
+            2.4375e-07,
+            2.5000000000000004e-07
+          ]
+        },
+        "endpoint_reference": "C:\\Users\\Jaesung\\DREME\\coupled_waveguide_runs\\tidy3d_c6_33node_reference\\reference_250nm.npz",
+        "endpoint_reference_sha256": "7ed883ca99f9b6dbf2bec13174dcb1c5e638dc9aeabf176eeae865ae6beebc36",
+        "reference_metadata": {
+          "generation_id": "645f462a89714b9e940c7fcd2144d43b",
+          "basis_id": "645f462a89714b9e940c7fcd2144d43b:32",
+          "channel_basis_id": "645f462a89714b9e940c7fcd2144d43b:32:channels",
+          "node": [
+            2.5000000000000004e-07
+          ],
+          "channel_keys": [
+            [
+              "wg0",
+              1
+            ],
+            [
+              "wg0",
+              2
+            ],
+            [
+              "wg0",
+              3
+            ],
+            [
+              "wg1",
+              1
+            ],
+            [
+              "wg1",
+              2
+            ],
+            [
+              "wg1",
+              3
+            ]
+          ],
+          "canonical_forward_mode_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24
+          ],
+          "mode_version": "7.25.3999",
+          "material_indices": {
+            "si": [
+              3.4763795526495227,
+              0.0
+            ],
+            "oxide": [
+              1.4440023011779028,
+              0.0
+            ]
+          },
+          "basis_max_scaled_errors_power_E_H": [
+            2.0695944957793704e-13,
+            1.2099715521282226e-13,
+            4.699478412117728e-13
+          ],
+          "wavelength_m": 1.55e-06
+        },
+        "section_model": {
+          "model_id": "straight_gap",
+          "model_version": 1,
+          "parameters": {
+            "gap": {
+              "unit": "m"
+            }
+          },
+          "coordinates": {
+            "unit": "m",
+            "propagation": "+x",
+            "lateral": "y",
+            "vertical": "z",
+            "field_component_order": [
+              "x",
+              "y",
+              "z"
+            ]
+          },
+          "guides": {
+            "wg0": {
+              "role": "bus",
+              "region_id": "wg0_core",
+              "width": 5e-07,
+              "placement": {
+                "kind": "edge_gap",
+                "reference_guide_id": "wg1",
+                "direction": "+y",
+                "parameter": "gap"
+              }
+            },
+            "wg1": {
+              "role": "ring",
+              "region_id": "wg1_core",
+              "width": 4.5e-07,
+              "center_y": 0.0,
+              "placement": {
+                "kind": "fixed"
+              }
+            }
+          },
+          "stack": {
+            "thickness": 2.2e-07,
+            "core_material_id": "si",
+            "upper_cladding_material_id": "oxide",
+            "lower_cladding_material_id": "oxide",
+            "device_layer_bottom_z": 0.0,
+            "slab_thickness": 0.0,
+            "box_thickness": null,
+            "substrate_material_id": null
+          }
+        },
+        "fde": {
+          "wavelength": 1.55e-06,
+          "y_bounds": [
+            -2e-06,
+            2.4e-06
+          ],
+          "z_bounds": [
+            -1.3e-06,
+            1.3e-06
+          ],
+          "mesh_cells_yz": [
+            352,
+            208
+          ],
+          "material_bindings": {
+            "si": "Si (Silicon) - Palik",
+            "oxide": "SiO2 (Glass) - Palik"
+          },
+          "candidate_counts": {
+            "coupled": 24,
+            "wg0": 3,
+            "wg1": 3
+          },
+          "boundary": "Metal"
+        },
+        "reference_planes_m": {
+          "input": 0.0,
+          "output": 9.999999999999999e-06
+        },
+        "source": {
+          "kind": "isolated",
+          "key": [
+            "wg0",
+            1
+          ],
+          "x_um": -0.125,
+          "source_power_W": 0.9999999999999994,
+          "target_power_W": 0.9999999999999994,
+          "target_Ey_center_y_um": 0.7250000001355008
+        },
+        "fdtd": {
+          "mesh_um": 0.020266643612274305,
+          "run_time_ps": 3.0,
+          "lead_um": 1.25,
+          "monitor_modes": 24,
+          "boundary": [
+            "PML",
+            "PEC",
+            "PEC"
+          ],
+          "material_model": "Palik phase index at 1550 nm; nondispersive",
+          "domain_center_um": [
+            5.0,
+            0.19999999999999996,
+            0.0
+          ],
+          "domain_size_um": [
+            12.5,
+            4.4,
+            2.6
+          ],
+          "grid_cells": 18026202
+        },
+        "dreme": {
+          "retained_modes": 24,
+          "stability_config": {
+            "guided_loss": 2.84e-05,
+            "pml_regularization_loss": 0.00284,
+            "pml_sink_loss": 0.0084,
+            "pml_mode_sink": true,
+            "guided_rcond": 1e-05,
+            "pml_rcond": 0.001,
+            "feedback_pml_rcond": 0.001,
+            "guided_fraction_threshold": 0.8,
+            "feedback_pml_fraction_threshold": 0.8,
+            "absolute_rcond": 1e-08
+          },
+          "neff_interpolation": false,
+          "power": {
+            "P0": 1.0,
+            "P1": 0.9999413051532166,
+            "P2": 0.9999698670646062,
+            "P3": 0.9999243151444261,
+            "input_mapping": {
+              "watts": 5.869484678344694e-05,
+              "relative": 5.869484678344694e-05,
+              "reason": null
+            },
+            "output_mapping": {
+              "watts": 4.555192018007581e-05,
+              "relative": 4.5553292834505765e-05,
+              "reason": null
+            },
+            "budget_closure_w": 0.0
+          },
+          "input_residuals": {
+            "E": {
+              "squared_norm": 0.15449525889664528,
+              "reference_squared_norm": 271.0261242806416,
+              "relative_squared": 0.0005700382548239845,
+              "reason": null,
+              "norm_unit": "V",
+              "warning_threshold": null
+            },
+            "H": {
+              "squared_norm": 1.590033231559096e-06,
+              "reference_squared_norm": 0.017602424482228082,
+              "relative_squared": 9.033035381940934e-05,
+              "reason": null,
+              "norm_unit": "A",
+              "warning_threshold": null
+            },
+            "context": "input node (2.5000000000000004e-07,) (645f462a89714b9e940c7fcd2144d43b:32)"
+          },
+          "input_direct_EH_residual": {
+            "E": 0.02387547391826454,
+            "H": 0.009504228207460412
+          },
+          "output_residuals": {
+            "E": {
+              "squared_norm": 0.14663431943108662,
+              "reference_squared_norm": 274.9495252111006,
+              "relative_squared": 0.0005333135938987485,
+              "reason": null,
+              "norm_unit": "V",
+              "warning_threshold": null
+            },
+            "H": {
+              "squared_norm": 1.1144885482400335e-06,
+              "reference_squared_norm": 0.01751362377902439,
+              "relative_squared": 6.363551954192527e-05,
+              "reason": null,
+              "norm_unit": "A",
+              "warning_threshold": null
+            },
+            "context": "output node (2.5000000000000004e-07,) (645f462a89714b9e940c7fcd2144d43b:32)"
+          },
+          "mapping_config": {
+            "svd_rtol": 1e-12,
+            "svd_atol": 0.0,
+            "condition_warning": 1000000000000.0,
+            "denominator_rtol": 1e-12,
+            "roundoff_rtol": 1e-12,
+            "min_reference_power_w": 0.0,
+            "e_residual_warning": null,
+            "h_residual_warning": null
+          },
+          "input_solve": {
+            "method": "solve",
+            "rank": 5,
+            "condition": 1.000539959188071,
+            "cutoff": 1.0003136545803746e-12,
+            "singular_values": [
+              1.0003136545803746,
+              1.000027288019112,
+              0.9999727553711111,
+              0.9999124845077922,
+              0.9997738175216109
+            ],
+            "equation_residual": 2.224872023966054e-16,
+            "relative_equation_residual": 9.997184665798824e-17,
+            "context": "input node (2.5000000000000004e-07,) (645f462a89714b9e940c7fcd2144d43b:32)"
+          },
+          "output_solve": {
+            "method": "solve",
+            "rank": 6,
+            "condition": 1.8407916485002704,
+            "cutoff": 1.295973989760472e-12,
+            "singular_values": [
+              1.295973989760472,
+              1.2460970129812494,
+              1.230968027058944,
+              0.7690292772711625,
+              0.7539009076862212,
+              0.7040307852419517
+            ],
+            "equation_residual": 2.2964123827039386e-16,
+            "relative_equation_residual": 9.392124426757885e-17,
+            "context": "output node (2.5000000000000004e-07,) (645f462a89714b9e940c7fcd2144d43b:32)"
+          },
+          "mapping_warnings": [],
+          "stability": {
+            "status": "normal",
+            "interface_events": [],
+            "feedback_fallbacks": [],
+            "pml_sink_mode_steps": 0
+          }
+        }
+      },
+      "grid_path": {
+        "grid_x_m": [
+          0.0,
+          9.999999999999999e-06
+        ],
+        "grid_gap_m": [
+          2.5000000000000004e-07,
+          2.5000000000000004e-07
+        ]
+      },
+      "input": {
+        "native_signed_flux_W": 1.0003303289413452,
+        "measured_signed_flux_W": 0.9973229217311916,
+        "raw_Ey_center_y_um": 0.7246084436606428,
+        "reconstructed_signed_flux_W": 0.997178661479612,
+        "reconstructed_over_native_signed_flux": 0.9968493732814553,
+        "forward_flux_W": 0.9971796459436941,
+        "backward_flux_magnitude_W": 2.2557903159608916e-07,
+        "mode_forward_power_W": 1.0002380869567715,
+        "mode_backward_power_W": 2.2578277728248177e-07,
+        "raw_EH_reconstruction": {
+          "E": 0.013652080641741199,
+          "H": 0.009056630845841686
+        },
+        "target_Ey_center_y_um": 0.7250000001355008,
+        "target_EH_relative_residual_after_power_and_phase_alignment": {
+          "E": 0.0537689628958966,
+          "H": 0.011636761319775972
+        }
+      },
+      "output": {
+        "native_signed_flux_W": 1.000382900238037,
+        "measured_signed_flux_W": 0.9974120340579343,
+        "raw_Ey_center_y_um": 0.7061189639179815,
+        "reconstructed_signed_flux_W": 0.9974251782244008,
+        "reconstructed_over_native_signed_flux": 0.9970434100653535,
+        "forward_flux_W": 0.9974262539918126,
+        "backward_flux_magnitude_W": 2.4495846277521707e-07,
+        "mode_forward_power_W": 1.0003621653322796,
+        "mode_backward_power_W": 2.4499544026495107e-07,
+        "raw_EH_reconstruction": {
+          "E": 0.011016811447814622,
+          "H": 0.00794830086175998
+        },
+        "projected_coherent_power_W": 0.9972306946809971,
+        "projection_EH_relative_residual": {
+          "E": 0.05165075417207477,
+          "H": 0.01073809927062006
+        },
+        "projection_solve": {
+          "method": "solve",
+          "rank": 6,
+          "condition": 1.8407916485002804,
+          "cutoff": 1.295973989760475e-12,
+          "singular_values": [
+            1.2959739897604752,
+            1.2460970129812479,
+            1.2309680270589454,
+            0.7690292772711634,
+            0.7539009076862223,
+            0.7040307852419495
+          ],
+          "equation_residual": 4.39196993446797e-17,
+          "relative_equation_residual": 4.242022006198568e-17,
+          "context": "Tidy3D output projection"
+        }
+      },
+      "final_field_decay": 4.25e-05,
+      "stopped_below_shutoff": false
+    },
+    {
+      "series": "tidy3d_c6_source_aligned_ppw22_6ps",
+      "case": "uniform",
+      "result_path": "C:\\Users\\Jaesung\\DREME\\coupled_waveguide_runs\\tidy3d_c6_source_aligned_ppw22_6ps\\uniform\\result.hdf5",
+      "result_sha256": "385ff3d22d6f3f87ead6fc5321477ecefa5541286fe6610fbb39cde24df57bcf",
+      "task": {
+        "task_id": "fdve-389fddd7-6d96-4a77-b8e3-54e9a9cdb6a1",
+        "solver_version_requested": null,
+        "max_flexcredits": 0.8749722181111314,
+        "final_status": "success",
+        "solver_version": null,
+        "actual_flexcredits": 0.8749722181111314
+      },
+      "source_manifest_sha256": "7843e1b2a87ab944a637021eb697638877bce60aeb6771f9e16ff739339b4bf5",
+      "simulation_sha256": "7920f563b5cec7f32d6a596de5f3cc04741cc9b0937f90bbc2668b862ccb8776",
+      "settings": {
+        "case": "uniform",
+        "git_head": "64ff14135c0533a7d7a077be49c3d313039810cc",
+        "comparison_code_sha256": "b8f13ccb26897bc33d46f7eac980e3c3ad4702bbac0a617834d585767a54d643",
+        "python": "3.10.16",
+        "tidy3d": "2.12.0",
+        "numpy": "2.2.6",
+        "dataset": "C:\\Users\\Jaesung\\DREME\\coupled_waveguide_runs\\soi220_power_debug_33nodes_24modes_mesh352x208_20261106_205757",
+        "dataset_generation_id": "645f462a89714b9e940c7fcd2144d43b",
+        "coarse_dataset": {
+          "path": "C:\\Users\\Jaesung\\DREME\\coupled_waveguide_runs\\soi220_power_debug_17nodes_24modes_mesh352x208_20261106_204648",
+          "generation_id": "0a32d8c06e9548758cf19cdba342e1c1",
+          "gap_grid_m": [
+            1.5000000000000002e-07,
+            1.5625e-07,
+            1.625e-07,
+            1.6875e-07,
+            1.7500000000000002e-07,
+            1.8125e-07,
+            1.875e-07,
+            1.9375000000000002e-07,
+            2.0000000000000002e-07,
+            2.0625e-07,
+            2.125e-07,
+            2.1875000000000002e-07,
+            2.2500000000000002e-07,
+            2.3125e-07,
+            2.375e-07,
+            2.4375e-07,
+            2.5000000000000004e-07
+          ]
+        },
+        "endpoint_reference": "C:\\Users\\Jaesung\\DREME\\coupled_waveguide_runs\\tidy3d_c6_33node_reference\\reference_250nm.npz",
+        "endpoint_reference_sha256": "7ed883ca99f9b6dbf2bec13174dcb1c5e638dc9aeabf176eeae865ae6beebc36",
+        "reference_metadata": {
+          "generation_id": "645f462a89714b9e940c7fcd2144d43b",
+          "basis_id": "645f462a89714b9e940c7fcd2144d43b:32",
+          "channel_basis_id": "645f462a89714b9e940c7fcd2144d43b:32:channels",
+          "node": [
+            2.5000000000000004e-07
+          ],
+          "channel_keys": [
+            [
+              "wg0",
+              1
+            ],
+            [
+              "wg0",
+              2
+            ],
+            [
+              "wg0",
+              3
+            ],
+            [
+              "wg1",
+              1
+            ],
+            [
+              "wg1",
+              2
+            ],
+            [
+              "wg1",
+              3
+            ]
+          ],
+          "canonical_forward_mode_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24
+          ],
+          "mode_version": "7.25.3999",
+          "material_indices": {
+            "si": [
+              3.4763795526495227,
+              0.0
+            ],
+            "oxide": [
+              1.4440023011779028,
+              0.0
+            ]
+          },
+          "basis_max_scaled_errors_power_E_H": [
+            2.0695944957793704e-13,
+            1.2099715521282226e-13,
+            4.699478412117728e-13
+          ],
+          "wavelength_m": 1.55e-06
+        },
+        "section_model": {
+          "model_id": "straight_gap",
+          "model_version": 1,
+          "parameters": {
+            "gap": {
+              "unit": "m"
+            }
+          },
+          "coordinates": {
+            "unit": "m",
+            "propagation": "+x",
+            "lateral": "y",
+            "vertical": "z",
+            "field_component_order": [
+              "x",
+              "y",
+              "z"
+            ]
+          },
+          "guides": {
+            "wg0": {
+              "role": "bus",
+              "region_id": "wg0_core",
+              "width": 5e-07,
+              "placement": {
+                "kind": "edge_gap",
+                "reference_guide_id": "wg1",
+                "direction": "+y",
+                "parameter": "gap"
+              }
+            },
+            "wg1": {
+              "role": "ring",
+              "region_id": "wg1_core",
+              "width": 4.5e-07,
+              "center_y": 0.0,
+              "placement": {
+                "kind": "fixed"
+              }
+            }
+          },
+          "stack": {
+            "thickness": 2.2e-07,
+            "core_material_id": "si",
+            "upper_cladding_material_id": "oxide",
+            "lower_cladding_material_id": "oxide",
+            "device_layer_bottom_z": 0.0,
+            "slab_thickness": 0.0,
+            "box_thickness": null,
+            "substrate_material_id": null
+          }
+        },
+        "fde": {
+          "wavelength": 1.55e-06,
+          "y_bounds": [
+            -2e-06,
+            2.4e-06
+          ],
+          "z_bounds": [
+            -1.3e-06,
+            1.3e-06
+          ],
+          "mesh_cells_yz": [
+            352,
+            208
+          ],
+          "material_bindings": {
+            "si": "Si (Silicon) - Palik",
+            "oxide": "SiO2 (Glass) - Palik"
+          },
+          "candidate_counts": {
+            "coupled": 24,
+            "wg0": 3,
+            "wg1": 3
+          },
+          "boundary": "Metal"
+        },
+        "reference_planes_m": {
+          "input": 0.0,
+          "output": 9.999999999999999e-06
+        },
+        "source": {
+          "kind": "isolated",
+          "key": [
+            "wg0",
+            1
+          ],
+          "x_um": -0.125,
+          "source_power_W": 0.9999999999999994,
+          "target_power_W": 0.9999999999999994,
+          "target_Ey_center_y_um": 0.7250000001355008
+        },
+        "fdtd": {
+          "mesh_um": 0.020266643612274305,
+          "run_time_ps": 6.0,
+          "lead_um": 1.25,
+          "monitor_modes": 24,
+          "boundary": [
+            "PML",
+            "PEC",
+            "PEC"
+          ],
+          "material_model": "Palik phase index at 1550 nm; nondispersive",
+          "domain_center_um": [
+            5.0,
+            0.19999999999999996,
+            0.0
+          ],
+          "domain_size_um": [
+            12.5,
+            4.4,
+            2.6
+          ],
+          "grid_cells": 18026202
+        },
+        "dreme": {
+          "retained_modes": 24,
+          "stability_config": {
+            "guided_loss": 2.84e-05,
+            "pml_regularization_loss": 0.00284,
+            "pml_sink_loss": 0.0084,
+            "pml_mode_sink": true,
+            "guided_rcond": 1e-05,
+            "pml_rcond": 0.001,
+            "feedback_pml_rcond": 0.001,
+            "guided_fraction_threshold": 0.8,
+            "feedback_pml_fraction_threshold": 0.8,
+            "absolute_rcond": 1e-08
+          },
+          "neff_interpolation": false,
+          "power": {
+            "P0": 1.0,
+            "P1": 0.9999413051532166,
+            "P2": 0.9999698670646062,
+            "P3": 0.9999243151444261,
+            "input_mapping": {
+              "watts": 5.869484678344694e-05,
+              "relative": 5.869484678344694e-05,
+              "reason": null
+            },
+            "output_mapping": {
+              "watts": 4.555192018007581e-05,
+              "relative": 4.5553292834505765e-05,
+              "reason": null
+            },
+            "budget_closure_w": 0.0
+          },
+          "input_residuals": {
+            "E": {
+              "squared_norm": 0.15449525889664528,
+              "reference_squared_norm": 271.0261242806416,
+              "relative_squared": 0.0005700382548239845,
+              "reason": null,
+              "norm_unit": "V",
+              "warning_threshold": null
+            },
+            "H": {
+              "squared_norm": 1.590033231559096e-06,
+              "reference_squared_norm": 0.017602424482228082,
+              "relative_squared": 9.033035381940934e-05,
+              "reason": null,
+              "norm_unit": "A",
+              "warning_threshold": null
+            },
+            "context": "input node (2.5000000000000004e-07,) (645f462a89714b9e940c7fcd2144d43b:32)"
+          },
+          "input_direct_EH_residual": {
+            "E": 0.02387547391826454,
+            "H": 0.009504228207460412
+          },
+          "output_residuals": {
+            "E": {
+              "squared_norm": 0.14663431943108662,
+              "reference_squared_norm": 274.9495252111006,
+              "relative_squared": 0.0005333135938987485,
+              "reason": null,
+              "norm_unit": "V",
+              "warning_threshold": null
+            },
+            "H": {
+              "squared_norm": 1.1144885482400335e-06,
+              "reference_squared_norm": 0.01751362377902439,
+              "relative_squared": 6.363551954192527e-05,
+              "reason": null,
+              "norm_unit": "A",
+              "warning_threshold": null
+            },
+            "context": "output node (2.5000000000000004e-07,) (645f462a89714b9e940c7fcd2144d43b:32)"
+          },
+          "mapping_config": {
+            "svd_rtol": 1e-12,
+            "svd_atol": 0.0,
+            "condition_warning": 1000000000000.0,
+            "denominator_rtol": 1e-12,
+            "roundoff_rtol": 1e-12,
+            "min_reference_power_w": 0.0,
+            "e_residual_warning": null,
+            "h_residual_warning": null
+          },
+          "input_solve": {
+            "method": "solve",
+            "rank": 5,
+            "condition": 1.000539959188071,
+            "cutoff": 1.0003136545803746e-12,
+            "singular_values": [
+              1.0003136545803746,
+              1.000027288019112,
+              0.9999727553711111,
+              0.9999124845077922,
+              0.9997738175216109
+            ],
+            "equation_residual": 2.224872023966054e-16,
+            "relative_equation_residual": 9.997184665798824e-17,
+            "context": "input node (2.5000000000000004e-07,) (645f462a89714b9e940c7fcd2144d43b:32)"
+          },
+          "output_solve": {
+            "method": "solve",
+            "rank": 6,
+            "condition": 1.8407916485002704,
+            "cutoff": 1.295973989760472e-12,
+            "singular_values": [
+              1.295973989760472,
+              1.2460970129812494,
+              1.230968027058944,
+              0.7690292772711625,
+              0.7539009076862212,
+              0.7040307852419517
+            ],
+            "equation_residual": 2.2964123827039386e-16,
+            "relative_equation_residual": 9.392124426757885e-17,
+            "context": "output node (2.5000000000000004e-07,) (645f462a89714b9e940c7fcd2144d43b:32)"
+          },
+          "mapping_warnings": [],
+          "stability": {
+            "status": "normal",
+            "interface_events": [],
+            "feedback_fallbacks": [],
+            "pml_sink_mode_steps": 0
+          }
+        }
+      },
+      "grid_path": {
+        "grid_x_m": [
+          0.0,
+          9.999999999999999e-06
+        ],
+        "grid_gap_m": [
+          2.5000000000000004e-07,
+          2.5000000000000004e-07
+        ]
+      },
+      "input": {
+        "native_signed_flux_W": 1.000335931777954,
+        "measured_signed_flux_W": 0.997328311687098,
+        "raw_Ey_center_y_um": 0.7246032261549707,
+        "reconstructed_signed_flux_W": 0.9971838908047248,
+        "reconstructed_over_native_signed_flux": 0.9968490175419101,
+        "forward_flux_W": 0.997184867264398,
+        "backward_flux_magnitude_W": 2.2263378253028994e-07,
+        "mode_forward_power_W": 1.0002433300218003,
+        "mode_backward_power_W": 2.2282099509563827e-07,
+        "raw_EH_reconstruction": {
+          "E": 0.01369772050153031,
+          "H": 0.00925271378007186
+        },
+        "target_Ey_center_y_um": 0.7250000001355008,
+        "target_EH_relative_residual_after_power_and_phase_alignment": {
+          "E": 0.053769820364504624,
+          "H": 0.011643464104946153
+        }
+      },
+      "output": {
+        "native_signed_flux_W": 1.0003851652145386,
+        "measured_signed_flux_W": 0.9974139161128566,
+        "raw_Ey_center_y_um": 0.706115244406875,
+        "reconstructed_signed_flux_W": 0.9974269697979068,
+        "reconstructed_over_native_signed_flux": 0.9970429435386545,
+        "forward_flux_W": 0.9974280466193336,
+        "backward_flux_magnitude_W": 2.454985838470709e-07,
+        "mode_forward_power_W": 1.000363961219781,
+        "mode_backward_power_W": 2.455333883992011e-07,
+        "raw_EH_reconstruction": {
+          "E": 0.011101585821613288,
+          "H": 0.007990924586353561
+        },
+        "projected_coherent_power_W": 0.9972324793145425,
+        "projection_EH_relative_residual": {
+          "E": 0.051650885890801676,
+          "H": 0.010738391402942126
+        },
+        "projection_solve": {
+          "method": "solve",
+          "rank": 6,
+          "condition": 1.8407916485002804,
+          "cutoff": 1.295973989760475e-12,
+          "singular_values": [
+            1.2959739897604752,
+            1.2460970129812479,
+            1.2309680270589454,
+            0.7690292772711634,
+            0.7539009076862223,
+            0.7040307852419495
+          ],
+          "equation_residual": 6.208759888185639e-17,
+          "relative_equation_residual": 5.996777521386825e-17,
+          "context": "Tidy3D output projection"
+        }
+      },
+      "final_field_decay": 2.76e-05,
+      "stopped_below_shutoff": false
+    },
+    {
+      "series": "tidy3d_c6_source_aligned_ppw22_6ps",
+      "case": "moving",
+      "result_path": "C:\\Users\\Jaesung\\DREME\\coupled_waveguide_runs\\tidy3d_c6_source_aligned_ppw22_6ps\\moving\\result.hdf5",
+      "result_sha256": "741ce1a446d1a7af858d155a4b01d9ff658aac132ac7cdfeab50115add13eacd",
+      "task": {
+        "task_id": "fdve-bd7aa66d-ee2e-4789-b0ae-7eefbfb12600",
+        "solver_version_requested": null,
+        "max_flexcredits": 1.2014206405401617,
+        "final_status": "success",
+        "solver_version": null,
+        "actual_flexcredits": 1.1358659895797456
+      },
+      "source_manifest_sha256": "1cc151409a948229d8a3149f5e0fa42824f50fb2cbfc71828f00eda2324ed1e1",
+      "simulation_sha256": "071fe3e202ecc077f6c55304957c5bb9e6765b91ad4a304a9f89b5a7db036e05",
+      "settings": {
+        "case": "moving",
+        "git_head": "64ff14135c0533a7d7a077be49c3d313039810cc",
+        "comparison_code_sha256": "b8f13ccb26897bc33d46f7eac980e3c3ad4702bbac0a617834d585767a54d643",
+        "python": "3.10.16",
+        "tidy3d": "2.12.0",
+        "numpy": "2.2.6",
+        "dataset": "C:\\Users\\Jaesung\\DREME\\coupled_waveguide_runs\\soi220_power_debug_33nodes_24modes_mesh352x208_20261106_205757",
+        "dataset_generation_id": "645f462a89714b9e940c7fcd2144d43b",
+        "coarse_dataset": {
+          "path": "C:\\Users\\Jaesung\\DREME\\coupled_waveguide_runs\\soi220_power_debug_17nodes_24modes_mesh352x208_20261106_204648",
+          "generation_id": "0a32d8c06e9548758cf19cdba342e1c1",
+          "gap_grid_m": [
+            1.5000000000000002e-07,
+            1.5625e-07,
+            1.625e-07,
+            1.6875e-07,
+            1.7500000000000002e-07,
+            1.8125e-07,
+            1.875e-07,
+            1.9375000000000002e-07,
+            2.0000000000000002e-07,
+            2.0625e-07,
+            2.125e-07,
+            2.1875000000000002e-07,
+            2.2500000000000002e-07,
+            2.3125e-07,
+            2.375e-07,
+            2.4375e-07,
+            2.5000000000000004e-07
+          ]
+        },
+        "endpoint_reference": "C:\\Users\\Jaesung\\DREME\\coupled_waveguide_runs\\tidy3d_c6_33node_reference\\reference_250nm.npz",
+        "endpoint_reference_sha256": "7ed883ca99f9b6dbf2bec13174dcb1c5e638dc9aeabf176eeae865ae6beebc36",
+        "reference_metadata": {
+          "generation_id": "645f462a89714b9e940c7fcd2144d43b",
+          "basis_id": "645f462a89714b9e940c7fcd2144d43b:32",
+          "channel_basis_id": "645f462a89714b9e940c7fcd2144d43b:32:channels",
+          "node": [
+            2.5000000000000004e-07
+          ],
+          "channel_keys": [
+            [
+              "wg0",
+              1
+            ],
+            [
+              "wg0",
+              2
+            ],
+            [
+              "wg0",
+              3
+            ],
+            [
+              "wg1",
+              1
+            ],
+            [
+              "wg1",
+              2
+            ],
+            [
+              "wg1",
+              3
+            ]
+          ],
+          "canonical_forward_mode_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24
+          ],
+          "mode_version": "7.25.3999",
+          "material_indices": {
+            "si": [
+              3.4763795526495227,
+              0.0
+            ],
+            "oxide": [
+              1.4440023011779028,
+              0.0
+            ]
+          },
+          "basis_max_scaled_errors_power_E_H": [
+            2.0695944957793704e-13,
+            1.2099715521282226e-13,
+            4.699478412117728e-13
+          ],
+          "wavelength_m": 1.55e-06
+        },
+        "section_model": {
+          "model_id": "straight_gap",
+          "model_version": 1,
+          "parameters": {
+            "gap": {
+              "unit": "m"
+            }
+          },
+          "coordinates": {
+            "unit": "m",
+            "propagation": "+x",
+            "lateral": "y",
+            "vertical": "z",
+            "field_component_order": [
+              "x",
+              "y",
+              "z"
+            ]
+          },
+          "guides": {
+            "wg0": {
+              "role": "bus",
+              "region_id": "wg0_core",
+              "width": 5e-07,
+              "placement": {
+                "kind": "edge_gap",
+                "reference_guide_id": "wg1",
+                "direction": "+y",
+                "parameter": "gap"
+              }
+            },
+            "wg1": {
+              "role": "ring",
+              "region_id": "wg1_core",
+              "width": 4.5e-07,
+              "center_y": 0.0,
+              "placement": {
+                "kind": "fixed"
+              }
+            }
+          },
+          "stack": {
+            "thickness": 2.2e-07,
+            "core_material_id": "si",
+            "upper_cladding_material_id": "oxide",
+            "lower_cladding_material_id": "oxide",
+            "device_layer_bottom_z": 0.0,
+            "slab_thickness": 0.0,
+            "box_thickness": null,
+            "substrate_material_id": null
+          }
+        },
+        "fde": {
+          "wavelength": 1.55e-06,
+          "y_bounds": [
+            -2e-06,
+            2.4e-06
+          ],
+          "z_bounds": [
+            -1.3e-06,
+            1.3e-06
+          ],
+          "mesh_cells_yz": [
+            352,
+            208
+          ],
+          "material_bindings": {
+            "si": "Si (Silicon) - Palik",
+            "oxide": "SiO2 (Glass) - Palik"
+          },
+          "candidate_counts": {
+            "coupled": 24,
+            "wg0": 3,
+            "wg1": 3
+          },
+          "boundary": "Metal"
+        },
+        "reference_planes_m": {
+          "input": 0.0,
+          "output": 1.4999999999999999e-05
+        },
+        "source": {
+          "kind": "isolated",
+          "key": [
+            "wg0",
+            1
+          ],
+          "x_um": -0.125,
+          "source_power_W": 0.9999999999999994,
+          "target_power_W": 0.9999999999999994,
+          "target_Ey_center_y_um": 0.7250000001355008
+        },
+        "fdtd": {
+          "mesh_um": 0.020266643612274305,
+          "run_time_ps": 6.0,
+          "lead_um": 1.25,
+          "monitor_modes": 24,
+          "boundary": [
+            "PML",
+            "PEC",
+            "PEC"
+          ],
+          "material_model": "Palik phase index at 1550 nm; nondispersive",
+          "domain_center_um": [
+            7.5,
+            0.19999999999999996,
+            0.0
+          ],
+          "domain_size_um": [
+            17.5,
+            4.4,
+            2.6
+          ],
+          "grid_cells": 24972336
+        },
+        "dreme": {
+          "retained_modes": 24,
+          "stability_config": {
+            "guided_loss": 2.84e-05,
+            "pml_regularization_loss": 0.00284,
+            "pml_sink_loss": 0.0084,
+            "pml_mode_sink": true,
+            "guided_rcond": 1e-05,
+            "pml_rcond": 0.001,
+            "feedback_pml_rcond": 0.001,
+            "guided_fraction_threshold": 0.8,
+            "feedback_pml_fraction_threshold": 0.8,
+            "absolute_rcond": 1e-08
+          },
+          "neff_interpolation": false,
+          "power": {
+            "P0": 1.0,
+            "P1": 0.9999413051532166,
+            "P2": 1.0039831694095007,
+            "P3": 1.0039027793822484,
+            "input_mapping": {
+              "watts": 5.869484678344694e-05,
+              "relative": 5.869484678344694e-05,
+              "reason": null
+            },
+            "output_mapping": {
+              "watts": 8.039002725235278e-05,
+              "relative": 8.007109053395258e-05,
+              "reason": null
+            },
+            "budget_closure_w": 0.0
+          },
+          "input_residuals": {
+            "E": {
+              "squared_norm": 0.15449525889664528,
+              "reference_squared_norm": 271.0261242806416,
+              "relative_squared": 0.0005700382548239845,
+              "reason": null,
+              "norm_unit": "V",
+              "warning_threshold": null
+            },
+            "H": {
+              "squared_norm": 1.590033231559096e-06,
+              "reference_squared_norm": 0.017602424482228082,
+              "relative_squared": 9.033035381940934e-05,
+              "reason": null,
+              "norm_unit": "A",
+              "warning_threshold": null
+            },
+            "context": "input node (2.5000000000000004e-07,) (645f462a89714b9e940c7fcd2144d43b:32)"
+          },
+          "input_direct_EH_residual": {
+            "E": 0.02387547391826454,
+            "H": 0.009504228207460412
+          },
+          "output_residuals": {
+            "E": {
+              "squared_norm": 0.16698014952214635,
+              "reference_squared_norm": 274.3718266920796,
+              "relative_squared": 0.0006085907271723779,
+              "reason": null,
+              "norm_unit": "V",
+              "warning_threshold": null
+            },
+            "H": {
+              "squared_norm": 1.4527222574126086e-06,
+              "reference_squared_norm": 0.01766499465704612,
+              "relative_squared": 8.223734485156804e-05,
+              "reason": null,
+              "norm_unit": "A",
+              "warning_threshold": null
+            },
+            "context": "output node (2.5000000000000004e-07,) (645f462a89714b9e940c7fcd2144d43b:32)"
+          },
+          "mapping_config": {
+            "svd_rtol": 1e-12,
+            "svd_atol": 0.0,
+            "condition_warning": 1000000000000.0,
+            "denominator_rtol": 1e-12,
+            "roundoff_rtol": 1e-12,
+            "min_reference_power_w": 0.0,
+            "e_residual_warning": null,
+            "h_residual_warning": null
+          },
+          "input_solve": {
+            "method": "solve",
+            "rank": 5,
+            "condition": 1.000539959188071,
+            "cutoff": 1.0003136545803746e-12,
+            "singular_values": [
+              1.0003136545803746,
+              1.000027288019112,
+              0.9999727553711111,
+              0.9999124845077922,
+              0.9997738175216109
+            ],
+            "equation_residual": 2.224872023966054e-16,
+            "relative_equation_residual": 9.997184665798824e-17,
+            "context": "input node (2.5000000000000004e-07,) (645f462a89714b9e940c7fcd2144d43b:32)"
+          },
+          "output_solve": {
+            "method": "solve",
+            "rank": 6,
+            "condition": 1.8407916485002704,
+            "cutoff": 1.295973989760472e-12,
+            "singular_values": [
+              1.295973989760472,
+              1.2460970129812494,
+              1.230968027058944,
+              0.7690292772711625,
+              0.7539009076862212,
+              0.7040307852419517
+            ],
+            "equation_residual": 2.2964123827039386e-16,
+            "relative_equation_residual": 9.392124426757885e-17,
+            "context": "output node (2.5000000000000004e-07,) (645f462a89714b9e940c7fcd2144d43b:32)"
+          },
+          "mapping_warnings": [],
+          "stability": {
+            "status": "normal",
+            "interface_events": [],
+            "feedback_fallbacks": [],
+            "pml_sink_mode_steps": 0
+          }
+        }
+      },
+      "grid_path": {
+        "grid_x_m": [
+          0.0,
+          7.812500000000187e-08,
+          2.3437500000000032e-07,
+          3.9062500000000145e-07,
+          5.468750000000025e-07,
+          7.03125000000001e-07,
+          8.593750000000021e-07,
+          1.0156250000000005e-06,
+          1.1718750000000018e-06,
+          1.328125e-06,
+          1.4843750000000014e-06,
+          1.6406249999999996e-06,
+          1.7968750000000007e-06,
+          1.9531250000000017e-06,
+          2.1093750000000005e-06,
+          2.2656250000000013e-06,
+          2.4218749999999996e-06,
+          2.578125000000001e-06,
+          2.734374999999999e-06,
+          2.8906250000000004e-06,
+          3.0468750000000012e-06,
+          3.2031250000000004e-06,
+          3.359375000000001e-06,
+          3.515625e-06,
+          3.6718750000000007e-06,
+          3.828124999999999e-06,
+          3.984375e-06,
+          4.1406250000000015e-06,
+          4.296874999999999e-06,
+          4.453125000000001e-06,
+          4.609374999999999e-06,
+          4.765625000000001e-06,
+          4.921874999999999e-06,
+          1.0078125e-05,
+          1.0234374999999998e-05,
+          1.0390624999999998e-05,
+          1.0546874999999997e-05,
+          1.0703125e-05,
+          1.0859374999999998e-05,
+          1.1015624999999998e-05,
+          1.1171874999999999e-05,
+          1.1328124999999998e-05,
+          1.1484375e-05,
+          1.1640624999999997e-05,
+          1.1796874999999999e-05,
+          1.1953124999999997e-05,
+          1.2109374999999998e-05,
+          1.2265624999999998e-05,
+          1.2421874999999999e-05,
+          1.2578124999999999e-05,
+          1.2734374999999998e-05,
+          1.2890624999999998e-05,
+          1.3046874999999997e-05,
+          1.3203124999999997e-05,
+          1.3359374999999998e-05,
+          1.3515624999999998e-05,
+          1.3671874999999999e-05,
+          1.3828124999999997e-05,
+          1.3984375e-05,
+          1.4140624999999996e-05,
+          1.4296874999999997e-05,
+          1.4453124999999996e-05,
+          1.4609374999999998e-05,
+          1.4765624999999998e-05,
+          1.4921874999999997e-05,
+          1.4999999999999999e-05
+        ],
+        "grid_gap_m": [
+          2.5000000000000004e-07,
+          2.46875e-07,
+          2.4375e-07,
+          2.40625e-07,
+          2.375e-07,
+          2.34375e-07,
+          2.3125e-07,
+          2.28125e-07,
+          2.2500000000000002e-07,
+          2.2187500000000002e-07,
+          2.1875000000000002e-07,
+          2.1562500000000003e-07,
+          2.125e-07,
+          2.09375e-07,
+          2.0625e-07,
+          2.0312500000000001e-07,
+          2.0000000000000002e-07,
+          1.9687500000000002e-07,
+          1.9375000000000002e-07,
+          1.90625e-07,
+          1.875e-07,
+          1.84375e-07,
+          1.8125e-07,
+          1.7812500000000002e-07,
+          1.7500000000000002e-07,
+          1.7187500000000002e-07,
+          1.6875e-07,
+          1.65625e-07,
+          1.625e-07,
+          1.59375e-07,
+          1.5625e-07,
+          1.5312500000000002e-07,
+          1.5000000000000002e-07,
+          1.5312500000000002e-07,
+          1.5625e-07,
+          1.59375e-07,
+          1.625e-07,
+          1.65625e-07,
+          1.6875e-07,
+          1.7187500000000002e-07,
+          1.7500000000000002e-07,
+          1.7812500000000002e-07,
+          1.8125e-07,
+          1.84375e-07,
+          1.875e-07,
+          1.90625e-07,
+          1.9375000000000002e-07,
+          1.9687500000000002e-07,
+          2.0000000000000002e-07,
+          2.0312500000000001e-07,
+          2.0625e-07,
+          2.09375e-07,
+          2.125e-07,
+          2.1562500000000003e-07,
+          2.1875000000000002e-07,
+          2.2187500000000002e-07,
+          2.2500000000000002e-07,
+          2.28125e-07,
+          2.3125e-07,
+          2.34375e-07,
+          2.375e-07,
+          2.40625e-07,
+          2.4375e-07,
+          2.46875e-07,
+          2.5000000000000004e-07,
+          2.5000000000000004e-07
+        ]
+      },
+      "input": {
+        "native_signed_flux_W": 1.0003197193145752,
+        "measured_signed_flux_W": 0.9973139255678872,
+        "raw_Ey_center_y_um": 0.7249103075038502,
+        "reconstructed_signed_flux_W": 0.9971757715332313,
+        "reconstructed_over_native_signed_flux": 0.9968570570782128,
+        "forward_flux_W": 0.9971774011857967,
+        "backward_flux_magnitude_W": 1.5474384010766246e-06,
+        "mode_forward_power_W": 1.0002358348775067,
+        "mode_backward_power_W": 1.5473072181737776e-06,
+        "raw_EH_reconstruction": {
+          "E": 0.014927848889317747,
+          "H": 0.009834299179684805
+        },
+        "target_Ey_center_y_um": 0.7250000001355008,
+        "target_EH_relative_residual_after_power_and_phase_alignment": {
+          "E": 0.05376171936193244,
+          "H": 0.011641497558315315
+        }
+      },
+      "output": {
+        "native_signed_flux_W": 1.0003191232681274,
+        "measured_signed_flux_W": 0.9973178426537803,
+        "raw_Ey_center_y_um": 0.6782886019037209,
+        "reconstructed_signed_flux_W": 0.9959060229521219,
+        "reconstructed_over_native_signed_flux": 0.9955883075577047,
+        "forward_flux_W": 0.9959070586107194,
+        "backward_flux_magnitude_W": 2.3673088418867898e-07,
+        "mode_forward_power_W": 0.9988924378944685,
+        "mode_backward_power_W": 2.3675103719297123e-07,
+        "raw_EH_reconstruction": {
+          "E": 0.05694858068156438,
+          "H": 0.02747057003439669
+        },
+        "projected_coherent_power_W": 0.9956267546526445,
+        "projection_EH_relative_residual": {
+          "E": 0.054139723717055874,
+          "H": 0.01226611192811106
+        },
+        "projection_solve": {
+          "method": "solve",
+          "rank": 6,
+          "condition": 1.8407916485002804,
+          "cutoff": 1.295973989760475e-12,
+          "singular_values": [
+            1.2959739897604752,
+            1.2460970129812479,
+            1.2309680270589454,
+            0.7690292772711634,
+            0.7539009076862223,
+            0.7040307852419495
+          ],
+          "equation_residual": 6.973506282387307e-17,
+          "relative_equation_residual": 6.754821905450038e-17,
+          "context": "Tidy3D output projection"
+        }
+      },
+      "final_field_decay": 9.34e-06,
+      "stopped_below_shutoff": true
+    },
+    {
+      "series": "tidy3d_c6_source_aligned_mesh12p5_6ps",
+      "case": "uniform",
+      "result_path": "C:\\Users\\Jaesung\\DREME\\coupled_waveguide_runs\\tidy3d_c6_source_aligned_mesh12p5_6ps\\uniform\\result.hdf5",
+      "result_sha256": "7225e7790b8b5677cca74637b608da9c15567afc5f25ae99bdf18f1a2243936e",
+      "task": {
+        "task_id": "fdve-d32c26cd-32ce-458b-8451-d3d2f7927f55",
+        "solver_version_requested": null,
+        "max_flexcredits": 5.484011966384056,
+        "final_status": "success",
+        "solver_version": null,
+        "actual_flexcredits": 5.484011966384056
+      },
+      "source_manifest_sha256": "c754e2c047179fb2f226e6e4cf3352c011b190a7a9749e5a5bf6de23203ce336",
+      "simulation_sha256": "4fe8f9aaf781c3b639bf3f3dd7d430f5b35762f91060818528c5aac7c2e1c522",
+      "settings": {
+        "case": "uniform",
+        "git_head": "64ff14135c0533a7d7a077be49c3d313039810cc",
+        "comparison_code_sha256": "b8f13ccb26897bc33d46f7eac980e3c3ad4702bbac0a617834d585767a54d643",
+        "python": "3.10.16",
+        "tidy3d": "2.12.0",
+        "numpy": "2.2.6",
+        "dataset": "C:\\Users\\Jaesung\\DREME\\coupled_waveguide_runs\\soi220_power_debug_33nodes_24modes_mesh352x208_20261106_205757",
+        "dataset_generation_id": "645f462a89714b9e940c7fcd2144d43b",
+        "coarse_dataset": {
+          "path": "C:\\Users\\Jaesung\\DREME\\coupled_waveguide_runs\\soi220_power_debug_17nodes_24modes_mesh352x208_20261106_204648",
+          "generation_id": "0a32d8c06e9548758cf19cdba342e1c1",
+          "gap_grid_m": [
+            1.5000000000000002e-07,
+            1.5625e-07,
+            1.625e-07,
+            1.6875e-07,
+            1.7500000000000002e-07,
+            1.8125e-07,
+            1.875e-07,
+            1.9375000000000002e-07,
+            2.0000000000000002e-07,
+            2.0625e-07,
+            2.125e-07,
+            2.1875000000000002e-07,
+            2.2500000000000002e-07,
+            2.3125e-07,
+            2.375e-07,
+            2.4375e-07,
+            2.5000000000000004e-07
+          ]
+        },
+        "endpoint_reference": "C:\\Users\\Jaesung\\DREME\\coupled_waveguide_runs\\tidy3d_c6_33node_reference\\reference_250nm.npz",
+        "endpoint_reference_sha256": "7ed883ca99f9b6dbf2bec13174dcb1c5e638dc9aeabf176eeae865ae6beebc36",
+        "reference_metadata": {
+          "generation_id": "645f462a89714b9e940c7fcd2144d43b",
+          "basis_id": "645f462a89714b9e940c7fcd2144d43b:32",
+          "channel_basis_id": "645f462a89714b9e940c7fcd2144d43b:32:channels",
+          "node": [
+            2.5000000000000004e-07
+          ],
+          "channel_keys": [
+            [
+              "wg0",
+              1
+            ],
+            [
+              "wg0",
+              2
+            ],
+            [
+              "wg0",
+              3
+            ],
+            [
+              "wg1",
+              1
+            ],
+            [
+              "wg1",
+              2
+            ],
+            [
+              "wg1",
+              3
+            ]
+          ],
+          "canonical_forward_mode_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24
+          ],
+          "mode_version": "7.25.3999",
+          "material_indices": {
+            "si": [
+              3.4763795526495227,
+              0.0
+            ],
+            "oxide": [
+              1.4440023011779028,
+              0.0
+            ]
+          },
+          "basis_max_scaled_errors_power_E_H": [
+            2.0695944957793704e-13,
+            1.2099715521282226e-13,
+            4.699478412117728e-13
+          ],
+          "wavelength_m": 1.55e-06
+        },
+        "section_model": {
+          "model_id": "straight_gap",
+          "model_version": 1,
+          "parameters": {
+            "gap": {
+              "unit": "m"
+            }
+          },
+          "coordinates": {
+            "unit": "m",
+            "propagation": "+x",
+            "lateral": "y",
+            "vertical": "z",
+            "field_component_order": [
+              "x",
+              "y",
+              "z"
+            ]
+          },
+          "guides": {
+            "wg0": {
+              "role": "bus",
+              "region_id": "wg0_core",
+              "width": 5e-07,
+              "placement": {
+                "kind": "edge_gap",
+                "reference_guide_id": "wg1",
+                "direction": "+y",
+                "parameter": "gap"
+              }
+            },
+            "wg1": {
+              "role": "ring",
+              "region_id": "wg1_core",
+              "width": 4.5e-07,
+              "center_y": 0.0,
+              "placement": {
+                "kind": "fixed"
+              }
+            }
+          },
+          "stack": {
+            "thickness": 2.2e-07,
+            "core_material_id": "si",
+            "upper_cladding_material_id": "oxide",
+            "lower_cladding_material_id": "oxide",
+            "device_layer_bottom_z": 0.0,
+            "slab_thickness": 0.0,
+            "box_thickness": null,
+            "substrate_material_id": null
+          }
+        },
+        "fde": {
+          "wavelength": 1.55e-06,
+          "y_bounds": [
+            -2e-06,
+            2.4e-06
+          ],
+          "z_bounds": [
+            -1.3e-06,
+            1.3e-06
+          ],
+          "mesh_cells_yz": [
+            352,
+            208
+          ],
+          "material_bindings": {
+            "si": "Si (Silicon) - Palik",
+            "oxide": "SiO2 (Glass) - Palik"
+          },
+          "candidate_counts": {
+            "coupled": 24,
+            "wg0": 3,
+            "wg1": 3
+          },
+          "boundary": "Metal"
+        },
+        "reference_planes_m": {
+          "input": 0.0,
+          "output": 9.999999999999999e-06
+        },
+        "source": {
+          "kind": "isolated",
+          "key": [
+            "wg0",
+            1
+          ],
+          "x_um": -0.125,
+          "source_power_W": 0.9999999999999994,
+          "target_power_W": 0.9999999999999994,
+          "target_Ey_center_y_um": 0.7250000001355008
+        },
+        "fdtd": {
+          "mesh_um": 0.0125,
+          "run_time_ps": 6.0,
+          "lead_um": 1.25,
+          "monitor_modes": 24,
+          "boundary": [
+            "PML",
+            "PEC",
+            "PEC"
+          ],
+          "material_model": "Palik phase index at 1550 nm; nondispersive",
+          "domain_center_um": [
+            5.0,
+            0.19999999999999996,
+            0.0
+          ],
+          "domain_size_um": [
+            12.5,
+            4.4,
+            2.6
+          ],
+          "grid_cells": 74973184
+        },
+        "dreme": {
+          "retained_modes": 24,
+          "stability_config": {
+            "guided_loss": 2.84e-05,
+            "pml_regularization_loss": 0.00284,
+            "pml_sink_loss": 0.0084,
+            "pml_mode_sink": true,
+            "guided_rcond": 1e-05,
+            "pml_rcond": 0.001,
+            "feedback_pml_rcond": 0.001,
+            "guided_fraction_threshold": 0.8,
+            "feedback_pml_fraction_threshold": 0.8,
+            "absolute_rcond": 1e-08
+          },
+          "neff_interpolation": false,
+          "power": {
+            "P0": 1.0,
+            "P1": 0.9999413051532166,
+            "P2": 0.9999698670646062,
+            "P3": 0.9999243151444261,
+            "input_mapping": {
+              "watts": 5.869484678344694e-05,
+              "relative": 5.869484678344694e-05,
+              "reason": null
+            },
+            "output_mapping": {
+              "watts": 4.555192018007581e-05,
+              "relative": 4.5553292834505765e-05,
+              "reason": null
+            },
+            "budget_closure_w": 0.0
+          },
+          "input_residuals": {
+            "E": {
+              "squared_norm": 0.15449525889664528,
+              "reference_squared_norm": 271.0261242806416,
+              "relative_squared": 0.0005700382548239845,
+              "reason": null,
+              "norm_unit": "V",
+              "warning_threshold": null
+            },
+            "H": {
+              "squared_norm": 1.590033231559096e-06,
+              "reference_squared_norm": 0.017602424482228082,
+              "relative_squared": 9.033035381940934e-05,
+              "reason": null,
+              "norm_unit": "A",
+              "warning_threshold": null
+            },
+            "context": "input node (2.5000000000000004e-07,) (645f462a89714b9e940c7fcd2144d43b:32)"
+          },
+          "input_direct_EH_residual": {
+            "E": 0.02387547391826454,
+            "H": 0.009504228207460412
+          },
+          "output_residuals": {
+            "E": {
+              "squared_norm": 0.14663431943108662,
+              "reference_squared_norm": 274.9495252111006,
+              "relative_squared": 0.0005333135938987485,
+              "reason": null,
+              "norm_unit": "V",
+              "warning_threshold": null
+            },
+            "H": {
+              "squared_norm": 1.1144885482400335e-06,
+              "reference_squared_norm": 0.01751362377902439,
+              "relative_squared": 6.363551954192527e-05,
+              "reason": null,
+              "norm_unit": "A",
+              "warning_threshold": null
+            },
+            "context": "output node (2.5000000000000004e-07,) (645f462a89714b9e940c7fcd2144d43b:32)"
+          },
+          "mapping_config": {
+            "svd_rtol": 1e-12,
+            "svd_atol": 0.0,
+            "condition_warning": 1000000000000.0,
+            "denominator_rtol": 1e-12,
+            "roundoff_rtol": 1e-12,
+            "min_reference_power_w": 0.0,
+            "e_residual_warning": null,
+            "h_residual_warning": null
+          },
+          "input_solve": {
+            "method": "solve",
+            "rank": 5,
+            "condition": 1.000539959188071,
+            "cutoff": 1.0003136545803746e-12,
+            "singular_values": [
+              1.0003136545803746,
+              1.000027288019112,
+              0.9999727553711111,
+              0.9999124845077922,
+              0.9997738175216109
+            ],
+            "equation_residual": 2.224872023966054e-16,
+            "relative_equation_residual": 9.997184665798824e-17,
+            "context": "input node (2.5000000000000004e-07,) (645f462a89714b9e940c7fcd2144d43b:32)"
+          },
+          "output_solve": {
+            "method": "solve",
+            "rank": 6,
+            "condition": 1.8407916485002704,
+            "cutoff": 1.295973989760472e-12,
+            "singular_values": [
+              1.295973989760472,
+              1.2460970129812494,
+              1.230968027058944,
+              0.7690292772711625,
+              0.7539009076862212,
+              0.7040307852419517
+            ],
+            "equation_residual": 2.2964123827039386e-16,
+            "relative_equation_residual": 9.392124426757885e-17,
+            "context": "output node (2.5000000000000004e-07,) (645f462a89714b9e940c7fcd2144d43b:32)"
+          },
+          "mapping_warnings": [],
+          "stability": {
+            "status": "normal",
+            "interface_events": [],
+            "feedback_fallbacks": [],
+            "pml_sink_mode_steps": 0
+          }
+        }
+      },
+      "grid_path": {
+        "grid_x_m": [
+          0.0,
+          9.999999999999999e-06
+        ],
+        "grid_gap_m": [
+          2.5000000000000004e-07,
+          2.5000000000000004e-07
+        ]
+      },
+      "input": {
+        "native_signed_flux_W": 0.9996793866157532,
+        "measured_signed_flux_W": 0.9996792428614877,
+        "raw_Ey_center_y_um": 0.7246708297691385,
+        "reconstructed_signed_flux_W": 0.9995939720444051,
+        "reconstructed_over_native_signed_flux": 0.9999145580348143,
+        "forward_flux_W": 0.9995940235836019,
+        "backward_flux_magnitude_W": 4.748126104007561e-08,
+        "mode_forward_power_W": 0.9996137555900513,
+        "mode_backward_power_W": 4.745992713908173e-08,
+        "raw_EH_reconstruction": {
+          "E": 0.015187907404653356,
+          "H": 0.007542452864980215
+        },
+        "target_Ey_center_y_um": 0.7250000001355008,
+        "target_EH_relative_residual_after_power_and_phase_alignment": {
+          "E": 0.023971245445402054,
+          "H": 0.009628266638123844
+        }
+      },
+      "output": {
+        "native_signed_flux_W": 0.9997169971466064,
+        "measured_signed_flux_W": 0.9997170948311772,
+        "raw_Ey_center_y_um": 0.7029648163102807,
+        "reconstructed_signed_flux_W": 0.9996977229162416,
+        "reconstructed_over_native_signed_flux": 0.9999807203134289,
+        "forward_flux_W": 0.9996977468716021,
+        "backward_flux_magnitude_W": 1.7681468039006438e-08,
+        "mode_forward_power_W": 0.9996843324808312,
+        "mode_backward_power_W": 1.7664170863819922e-08,
+        "raw_EH_reconstruction": {
+          "E": 0.012154671209032167,
+          "H": 0.006136518340735117
+        },
+        "projected_coherent_power_W": 0.999623413159557,
+        "projection_EH_relative_residual": {
+          "E": 0.024210095185551384,
+          "H": 0.008582591987728875
+        },
+        "projection_solve": {
+          "method": "solve",
+          "rank": 6,
+          "condition": 1.8407916485002804,
+          "cutoff": 1.295973989760475e-12,
+          "singular_values": [
+            1.2959739897604752,
+            1.2460970129812479,
+            1.2309680270589454,
+            0.7690292772711634,
+            0.7539009076862223,
+            0.7040307852419495
+          ],
+          "equation_residual": 6.254634645568074e-17,
+          "relative_equation_residual": 6.029022412412993e-17,
+          "context": "Tidy3D output projection"
+        }
+      },
+      "final_field_decay": 2.01e-05,
+      "stopped_below_shutoff": false
+    },
+    {
+      "series": "tidy3d_c6_source_aligned_mesh12p5_6ps",
+      "case": "moving",
+      "result_path": "C:\\Users\\Jaesung\\DREME\\coupled_waveguide_runs\\tidy3d_c6_source_aligned_mesh12p5_6ps\\moving\\result.hdf5",
+      "result_sha256": "47382d5559bdb2769c974d3c4835a0b1e75ee1fd2829acbab6119e4f7691bef6",
+      "task": {
+        "task_id": "fdve-1349319d-8f89-418f-a366-980d5f553434",
+        "solver_version_requested": null,
+        "max_flexcredits": 7.447115421109704,
+        "final_status": "success",
+        "solver_version": null,
+        "actual_flexcredits": 7.447115421109704
+      },
+      "source_manifest_sha256": "7f1e43b9b0075461ef270be06e503fd9efd6cd188b58b3ff1ffda24b1bf79fb2",
+      "simulation_sha256": "6853e35ab29f18d11c8f36563890982e7170f0f6755763999796b2119a48b9a6",
+      "settings": {
+        "case": "moving",
+        "git_head": "64ff14135c0533a7d7a077be49c3d313039810cc",
+        "comparison_code_sha256": "b8f13ccb26897bc33d46f7eac980e3c3ad4702bbac0a617834d585767a54d643",
+        "python": "3.10.16",
+        "tidy3d": "2.12.0",
+        "numpy": "2.2.6",
+        "dataset": "C:\\Users\\Jaesung\\DREME\\coupled_waveguide_runs\\soi220_power_debug_33nodes_24modes_mesh352x208_20261106_205757",
+        "dataset_generation_id": "645f462a89714b9e940c7fcd2144d43b",
+        "coarse_dataset": {
+          "path": "C:\\Users\\Jaesung\\DREME\\coupled_waveguide_runs\\soi220_power_debug_17nodes_24modes_mesh352x208_20261106_204648",
+          "generation_id": "0a32d8c06e9548758cf19cdba342e1c1",
+          "gap_grid_m": [
+            1.5000000000000002e-07,
+            1.5625e-07,
+            1.625e-07,
+            1.6875e-07,
+            1.7500000000000002e-07,
+            1.8125e-07,
+            1.875e-07,
+            1.9375000000000002e-07,
+            2.0000000000000002e-07,
+            2.0625e-07,
+            2.125e-07,
+            2.1875000000000002e-07,
+            2.2500000000000002e-07,
+            2.3125e-07,
+            2.375e-07,
+            2.4375e-07,
+            2.5000000000000004e-07
+          ]
+        },
+        "endpoint_reference": "C:\\Users\\Jaesung\\DREME\\coupled_waveguide_runs\\tidy3d_c6_33node_reference\\reference_250nm.npz",
+        "endpoint_reference_sha256": "7ed883ca99f9b6dbf2bec13174dcb1c5e638dc9aeabf176eeae865ae6beebc36",
+        "reference_metadata": {
+          "generation_id": "645f462a89714b9e940c7fcd2144d43b",
+          "basis_id": "645f462a89714b9e940c7fcd2144d43b:32",
+          "channel_basis_id": "645f462a89714b9e940c7fcd2144d43b:32:channels",
+          "node": [
+            2.5000000000000004e-07
+          ],
+          "channel_keys": [
+            [
+              "wg0",
+              1
+            ],
+            [
+              "wg0",
+              2
+            ],
+            [
+              "wg0",
+              3
+            ],
+            [
+              "wg1",
+              1
+            ],
+            [
+              "wg1",
+              2
+            ],
+            [
+              "wg1",
+              3
+            ]
+          ],
+          "canonical_forward_mode_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24
+          ],
+          "mode_version": "7.25.3999",
+          "material_indices": {
+            "si": [
+              3.4763795526495227,
+              0.0
+            ],
+            "oxide": [
+              1.4440023011779028,
+              0.0
+            ]
+          },
+          "basis_max_scaled_errors_power_E_H": [
+            2.0695944957793704e-13,
+            1.2099715521282226e-13,
+            4.699478412117728e-13
+          ],
+          "wavelength_m": 1.55e-06
+        },
+        "section_model": {
+          "model_id": "straight_gap",
+          "model_version": 1,
+          "parameters": {
+            "gap": {
+              "unit": "m"
+            }
+          },
+          "coordinates": {
+            "unit": "m",
+            "propagation": "+x",
+            "lateral": "y",
+            "vertical": "z",
+            "field_component_order": [
+              "x",
+              "y",
+              "z"
+            ]
+          },
+          "guides": {
+            "wg0": {
+              "role": "bus",
+              "region_id": "wg0_core",
+              "width": 5e-07,
+              "placement": {
+                "kind": "edge_gap",
+                "reference_guide_id": "wg1",
+                "direction": "+y",
+                "parameter": "gap"
+              }
+            },
+            "wg1": {
+              "role": "ring",
+              "region_id": "wg1_core",
+              "width": 4.5e-07,
+              "center_y": 0.0,
+              "placement": {
+                "kind": "fixed"
+              }
+            }
+          },
+          "stack": {
+            "thickness": 2.2e-07,
+            "core_material_id": "si",
+            "upper_cladding_material_id": "oxide",
+            "lower_cladding_material_id": "oxide",
+            "device_layer_bottom_z": 0.0,
+            "slab_thickness": 0.0,
+            "box_thickness": null,
+            "substrate_material_id": null
+          }
+        },
+        "fde": {
+          "wavelength": 1.55e-06,
+          "y_bounds": [
+            -2e-06,
+            2.4e-06
+          ],
+          "z_bounds": [
+            -1.3e-06,
+            1.3e-06
+          ],
+          "mesh_cells_yz": [
+            352,
+            208
+          ],
+          "material_bindings": {
+            "si": "Si (Silicon) - Palik",
+            "oxide": "SiO2 (Glass) - Palik"
+          },
+          "candidate_counts": {
+            "coupled": 24,
+            "wg0": 3,
+            "wg1": 3
+          },
+          "boundary": "Metal"
+        },
+        "reference_planes_m": {
+          "input": 0.0,
+          "output": 1.4999999999999999e-05
+        },
+        "source": {
+          "kind": "isolated",
+          "key": [
+            "wg0",
+            1
+          ],
+          "x_um": -0.125,
+          "source_power_W": 0.9999999999999994,
+          "target_power_W": 0.9999999999999994,
+          "target_Ey_center_y_um": 0.7250000001355008
+        },
+        "fdtd": {
+          "mesh_um": 0.0125,
+          "run_time_ps": 6.0,
+          "lead_um": 1.25,
+          "monitor_modes": 24,
+          "boundary": [
+            "PML",
+            "PEC",
+            "PEC"
+          ],
+          "material_model": "Palik phase index at 1550 nm; nondispersive",
+          "domain_center_um": [
+            7.5,
+            0.19999999999999996,
+            0.0
+          ],
+          "domain_size_um": [
+            17.5,
+            4.4,
+            2.6
+          ],
+          "grid_cells": 104259584
+        },
+        "dreme": {
+          "retained_modes": 24,
+          "stability_config": {
+            "guided_loss": 2.84e-05,
+            "pml_regularization_loss": 0.00284,
+            "pml_sink_loss": 0.0084,
+            "pml_mode_sink": true,
+            "guided_rcond": 1e-05,
+            "pml_rcond": 0.001,
+            "feedback_pml_rcond": 0.001,
+            "guided_fraction_threshold": 0.8,
+            "feedback_pml_fraction_threshold": 0.8,
+            "absolute_rcond": 1e-08
+          },
+          "neff_interpolation": false,
+          "power": {
+            "P0": 1.0,
+            "P1": 0.9999413051532166,
+            "P2": 1.0039831694095007,
+            "P3": 1.0039027793822484,
+            "input_mapping": {
+              "watts": 5.869484678344694e-05,
+              "relative": 5.869484678344694e-05,
+              "reason": null
+            },
+            "output_mapping": {
+              "watts": 8.039002725235278e-05,
+              "relative": 8.007109053395258e-05,
+              "reason": null
+            },
+            "budget_closure_w": 0.0
+          },
+          "input_residuals": {
+            "E": {
+              "squared_norm": 0.15449525889664528,
+              "reference_squared_norm": 271.0261242806416,
+              "relative_squared": 0.0005700382548239845,
+              "reason": null,
+              "norm_unit": "V",
+              "warning_threshold": null
+            },
+            "H": {
+              "squared_norm": 1.590033231559096e-06,
+              "reference_squared_norm": 0.017602424482228082,
+              "relative_squared": 9.033035381940934e-05,
+              "reason": null,
+              "norm_unit": "A",
+              "warning_threshold": null
+            },
+            "context": "input node (2.5000000000000004e-07,) (645f462a89714b9e940c7fcd2144d43b:32)"
+          },
+          "input_direct_EH_residual": {
+            "E": 0.02387547391826454,
+            "H": 0.009504228207460412
+          },
+          "output_residuals": {
+            "E": {
+              "squared_norm": 0.16698014952214635,
+              "reference_squared_norm": 274.3718266920796,
+              "relative_squared": 0.0006085907271723779,
+              "reason": null,
+              "norm_unit": "V",
+              "warning_threshold": null
+            },
+            "H": {
+              "squared_norm": 1.4527222574126086e-06,
+              "reference_squared_norm": 0.01766499465704612,
+              "relative_squared": 8.223734485156804e-05,
+              "reason": null,
+              "norm_unit": "A",
+              "warning_threshold": null
+            },
+            "context": "output node (2.5000000000000004e-07,) (645f462a89714b9e940c7fcd2144d43b:32)"
+          },
+          "mapping_config": {
+            "svd_rtol": 1e-12,
+            "svd_atol": 0.0,
+            "condition_warning": 1000000000000.0,
+            "denominator_rtol": 1e-12,
+            "roundoff_rtol": 1e-12,
+            "min_reference_power_w": 0.0,
+            "e_residual_warning": null,
+            "h_residual_warning": null
+          },
+          "input_solve": {
+            "method": "solve",
+            "rank": 5,
+            "condition": 1.000539959188071,
+            "cutoff": 1.0003136545803746e-12,
+            "singular_values": [
+              1.0003136545803746,
+              1.000027288019112,
+              0.9999727553711111,
+              0.9999124845077922,
+              0.9997738175216109
+            ],
+            "equation_residual": 2.224872023966054e-16,
+            "relative_equation_residual": 9.997184665798824e-17,
+            "context": "input node (2.5000000000000004e-07,) (645f462a89714b9e940c7fcd2144d43b:32)"
+          },
+          "output_solve": {
+            "method": "solve",
+            "rank": 6,
+            "condition": 1.8407916485002704,
+            "cutoff": 1.295973989760472e-12,
+            "singular_values": [
+              1.295973989760472,
+              1.2460970129812494,
+              1.230968027058944,
+              0.7690292772711625,
+              0.7539009076862212,
+              0.7040307852419517
+            ],
+            "equation_residual": 2.2964123827039386e-16,
+            "relative_equation_residual": 9.392124426757885e-17,
+            "context": "output node (2.5000000000000004e-07,) (645f462a89714b9e940c7fcd2144d43b:32)"
+          },
+          "mapping_warnings": [],
+          "stability": {
+            "status": "normal",
+            "interface_events": [],
+            "feedback_fallbacks": [],
+            "pml_sink_mode_steps": 0
+          }
+        }
+      },
+      "grid_path": {
+        "grid_x_m": [
+          0.0,
+          7.812500000000187e-08,
+          2.3437500000000032e-07,
+          3.9062500000000145e-07,
+          5.468750000000025e-07,
+          7.03125000000001e-07,
+          8.593750000000021e-07,
+          1.0156250000000005e-06,
+          1.1718750000000018e-06,
+          1.328125e-06,
+          1.4843750000000014e-06,
+          1.6406249999999996e-06,
+          1.7968750000000007e-06,
+          1.9531250000000017e-06,
+          2.1093750000000005e-06,
+          2.2656250000000013e-06,
+          2.4218749999999996e-06,
+          2.578125000000001e-06,
+          2.734374999999999e-06,
+          2.8906250000000004e-06,
+          3.0468750000000012e-06,
+          3.2031250000000004e-06,
+          3.359375000000001e-06,
+          3.515625e-06,
+          3.6718750000000007e-06,
+          3.828124999999999e-06,
+          3.984375e-06,
+          4.1406250000000015e-06,
+          4.296874999999999e-06,
+          4.453125000000001e-06,
+          4.609374999999999e-06,
+          4.765625000000001e-06,
+          4.921874999999999e-06,
+          1.0078125e-05,
+          1.0234374999999998e-05,
+          1.0390624999999998e-05,
+          1.0546874999999997e-05,
+          1.0703125e-05,
+          1.0859374999999998e-05,
+          1.1015624999999998e-05,
+          1.1171874999999999e-05,
+          1.1328124999999998e-05,
+          1.1484375e-05,
+          1.1640624999999997e-05,
+          1.1796874999999999e-05,
+          1.1953124999999997e-05,
+          1.2109374999999998e-05,
+          1.2265624999999998e-05,
+          1.2421874999999999e-05,
+          1.2578124999999999e-05,
+          1.2734374999999998e-05,
+          1.2890624999999998e-05,
+          1.3046874999999997e-05,
+          1.3203124999999997e-05,
+          1.3359374999999998e-05,
+          1.3515624999999998e-05,
+          1.3671874999999999e-05,
+          1.3828124999999997e-05,
+          1.3984375e-05,
+          1.4140624999999996e-05,
+          1.4296874999999997e-05,
+          1.4453124999999996e-05,
+          1.4609374999999998e-05,
+          1.4765624999999998e-05,
+          1.4921874999999997e-05,
+          1.4999999999999999e-05
+        ],
+        "grid_gap_m": [
+          2.5000000000000004e-07,
+          2.46875e-07,
+          2.4375e-07,
+          2.40625e-07,
+          2.375e-07,
+          2.34375e-07,
+          2.3125e-07,
+          2.28125e-07,
+          2.2500000000000002e-07,
+          2.2187500000000002e-07,
+          2.1875000000000002e-07,
+          2.1562500000000003e-07,
+          2.125e-07,
+          2.09375e-07,
+          2.0625e-07,
+          2.0312500000000001e-07,
+          2.0000000000000002e-07,
+          1.9687500000000002e-07,
+          1.9375000000000002e-07,
+          1.90625e-07,
+          1.875e-07,
+          1.84375e-07,
+          1.8125e-07,
+          1.7812500000000002e-07,
+          1.7500000000000002e-07,
+          1.7187500000000002e-07,
+          1.6875e-07,
+          1.65625e-07,
+          1.625e-07,
+          1.59375e-07,
+          1.5625e-07,
+          1.5312500000000002e-07,
+          1.5000000000000002e-07,
+          1.5312500000000002e-07,
+          1.5625e-07,
+          1.59375e-07,
+          1.625e-07,
+          1.65625e-07,
+          1.6875e-07,
+          1.7187500000000002e-07,
+          1.7500000000000002e-07,
+          1.7812500000000002e-07,
+          1.8125e-07,
+          1.84375e-07,
+          1.875e-07,
+          1.90625e-07,
+          1.9375000000000002e-07,
+          1.9687500000000002e-07,
+          2.0000000000000002e-07,
+          2.0312500000000001e-07,
+          2.0625e-07,
+          2.09375e-07,
+          2.125e-07,
+          2.1562500000000003e-07,
+          2.1875000000000002e-07,
+          2.2187500000000002e-07,
+          2.2500000000000002e-07,
+          2.28125e-07,
+          2.3125e-07,
+          2.34375e-07,
+          2.375e-07,
+          2.40625e-07,
+          2.4375e-07,
+          2.46875e-07,
+          2.5000000000000004e-07,
+          2.5000000000000004e-07
+        ]
+      },
+      "input": {
+        "native_signed_flux_W": 0.9996239542961121,
+        "measured_signed_flux_W": 0.9996239708965589,
+        "raw_Ey_center_y_um": 0.7254447401455283,
+        "reconstructed_signed_flux_W": 0.9995819303904719,
+        "reconstructed_over_native_signed_flux": 0.9999579602855059,
+        "forward_flux_W": 0.9995893329535216,
+        "backward_flux_magnitude_W": 7.2493868051386355e-06,
+        "mode_forward_power_W": 0.999609058367443,
+        "mode_backward_power_W": 7.236327142608546e-06,
+        "raw_EH_reconstruction": {
+          "E": 0.025509364557571985,
+          "H": 0.014546131224194563
+        },
+        "target_Ey_center_y_um": 0.7250000001355008,
+        "target_EH_relative_residual_after_power_and_phase_alignment": {
+          "E": 0.023971878622808414,
+          "H": 0.009636214693497114
+        }
+      },
+      "output": {
+        "native_signed_flux_W": 0.9995545148849487,
+        "measured_signed_flux_W": 0.9995550350267083,
+        "raw_Ey_center_y_um": 0.6749844788600475,
+        "reconstructed_signed_flux_W": 0.9994251141237974,
+        "reconstructed_over_native_signed_flux": 0.9998705415670438,
+        "forward_flux_W": 0.9994251388082867,
+        "backward_flux_magnitude_W": 1.7536588024727348e-08,
+        "mode_forward_power_W": 0.9994344644183413,
+        "mode_backward_power_W": 1.7520069948419297e-08,
+        "raw_EH_reconstruction": {
+          "E": 0.022525032047210503,
+          "H": 0.01637785038541464
+        },
+        "projected_coherent_power_W": 0.9993292165193298,
+        "projection_EH_relative_residual": {
+          "E": 0.02565581139123472,
+          "H": 0.00969094589680059
+        },
+        "projection_solve": {
+          "method": "solve",
+          "rank": 6,
+          "condition": 1.8407916485002804,
+          "cutoff": 1.295973989760475e-12,
+          "singular_values": [
+            1.2959739897604752,
+            1.2460970129812479,
+            1.2309680270589454,
+            0.7690292772711634,
+            0.7539009076862223,
+            0.7040307852419495
+          ],
+          "equation_residual": 4.0011662377769157e-17,
+          "relative_equation_residual": 3.874665808511819e-17,
+          "context": "Tidy3D output projection"
+        }
+      },
+      "final_field_decay": 0.000211,
+      "stopped_below_shutoff": false
+    },
+    {
+      "series": "tidy3d_c6_source_aligned_mesh12p5_12ps",
+      "case": "moving",
+      "result_path": "C:\\Users\\Jaesung\\DREME\\coupled_waveguide_runs\\tidy3d_c6_source_aligned_mesh12p5_12ps\\moving\\result.hdf5",
+      "result_sha256": "6b2ddec4b68707aab061491f521db749f1c786fbcc2aa07c39b51e8fa02f4724",
+      "task": {
+        "task_id": "fdve-4d2cfaf0-2565-4aa2-9e34-4177d005d571",
+        "solver_version_requested": null,
+        "max_flexcredits": 13.743175067762193,
+        "final_status": "success",
+        "solver_version": null,
+        "actual_flexcredits": 13.743175067762193
+      },
+      "source_manifest_sha256": "2a01ffc68805144ce4d09736c911bcc5ee7b47d7d1d4e7521ea0f9144d5257ff",
+      "simulation_sha256": "e02e6634c678753fd75e802d0920acc9254d336db7d7a0613dc0419118feda38",
+      "settings": {
+        "case": "moving",
+        "git_head": "64ff14135c0533a7d7a077be49c3d313039810cc",
+        "comparison_code_sha256": "b8f13ccb26897bc33d46f7eac980e3c3ad4702bbac0a617834d585767a54d643",
+        "python": "3.10.16",
+        "tidy3d": "2.12.0",
+        "numpy": "2.2.6",
+        "dataset": "C:\\Users\\Jaesung\\DREME\\coupled_waveguide_runs\\soi220_power_debug_33nodes_24modes_mesh352x208_20261106_205757",
+        "dataset_generation_id": "645f462a89714b9e940c7fcd2144d43b",
+        "coarse_dataset": {
+          "path": "C:\\Users\\Jaesung\\DREME\\coupled_waveguide_runs\\soi220_power_debug_17nodes_24modes_mesh352x208_20261106_204648",
+          "generation_id": "0a32d8c06e9548758cf19cdba342e1c1",
+          "gap_grid_m": [
+            1.5000000000000002e-07,
+            1.5625e-07,
+            1.625e-07,
+            1.6875e-07,
+            1.7500000000000002e-07,
+            1.8125e-07,
+            1.875e-07,
+            1.9375000000000002e-07,
+            2.0000000000000002e-07,
+            2.0625e-07,
+            2.125e-07,
+            2.1875000000000002e-07,
+            2.2500000000000002e-07,
+            2.3125e-07,
+            2.375e-07,
+            2.4375e-07,
+            2.5000000000000004e-07
+          ]
+        },
+        "endpoint_reference": "C:\\Users\\Jaesung\\DREME\\coupled_waveguide_runs\\tidy3d_c6_33node_reference\\reference_250nm.npz",
+        "endpoint_reference_sha256": "7ed883ca99f9b6dbf2bec13174dcb1c5e638dc9aeabf176eeae865ae6beebc36",
+        "reference_metadata": {
+          "generation_id": "645f462a89714b9e940c7fcd2144d43b",
+          "basis_id": "645f462a89714b9e940c7fcd2144d43b:32",
+          "channel_basis_id": "645f462a89714b9e940c7fcd2144d43b:32:channels",
+          "node": [
+            2.5000000000000004e-07
+          ],
+          "channel_keys": [
+            [
+              "wg0",
+              1
+            ],
+            [
+              "wg0",
+              2
+            ],
+            [
+              "wg0",
+              3
+            ],
+            [
+              "wg1",
+              1
+            ],
+            [
+              "wg1",
+              2
+            ],
+            [
+              "wg1",
+              3
+            ]
+          ],
+          "canonical_forward_mode_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24
+          ],
+          "mode_version": "7.25.3999",
+          "material_indices": {
+            "si": [
+              3.4763795526495227,
+              0.0
+            ],
+            "oxide": [
+              1.4440023011779028,
+              0.0
+            ]
+          },
+          "basis_max_scaled_errors_power_E_H": [
+            2.0695944957793704e-13,
+            1.2099715521282226e-13,
+            4.699478412117728e-13
+          ],
+          "wavelength_m": 1.55e-06
+        },
+        "section_model": {
+          "model_id": "straight_gap",
+          "model_version": 1,
+          "parameters": {
+            "gap": {
+              "unit": "m"
+            }
+          },
+          "coordinates": {
+            "unit": "m",
+            "propagation": "+x",
+            "lateral": "y",
+            "vertical": "z",
+            "field_component_order": [
+              "x",
+              "y",
+              "z"
+            ]
+          },
+          "guides": {
+            "wg0": {
+              "role": "bus",
+              "region_id": "wg0_core",
+              "width": 5e-07,
+              "placement": {
+                "kind": "edge_gap",
+                "reference_guide_id": "wg1",
+                "direction": "+y",
+                "parameter": "gap"
+              }
+            },
+            "wg1": {
+              "role": "ring",
+              "region_id": "wg1_core",
+              "width": 4.5e-07,
+              "center_y": 0.0,
+              "placement": {
+                "kind": "fixed"
+              }
+            }
+          },
+          "stack": {
+            "thickness": 2.2e-07,
+            "core_material_id": "si",
+            "upper_cladding_material_id": "oxide",
+            "lower_cladding_material_id": "oxide",
+            "device_layer_bottom_z": 0.0,
+            "slab_thickness": 0.0,
+            "box_thickness": null,
+            "substrate_material_id": null
+          }
+        },
+        "fde": {
+          "wavelength": 1.55e-06,
+          "y_bounds": [
+            -2e-06,
+            2.4e-06
+          ],
+          "z_bounds": [
+            -1.3e-06,
+            1.3e-06
+          ],
+          "mesh_cells_yz": [
+            352,
+            208
+          ],
+          "material_bindings": {
+            "si": "Si (Silicon) - Palik",
+            "oxide": "SiO2 (Glass) - Palik"
+          },
+          "candidate_counts": {
+            "coupled": 24,
+            "wg0": 3,
+            "wg1": 3
+          },
+          "boundary": "Metal"
+        },
+        "reference_planes_m": {
+          "input": 0.0,
+          "output": 1.4999999999999999e-05
+        },
+        "source": {
+          "kind": "isolated",
+          "key": [
+            "wg0",
+            1
+          ],
+          "x_um": -0.125,
+          "source_power_W": 0.9999999999999994,
+          "target_power_W": 0.9999999999999994,
+          "target_Ey_center_y_um": 0.7250000001355008
+        },
+        "fdtd": {
+          "mesh_um": 0.0125,
+          "run_time_ps": 12.0,
+          "lead_um": 1.25,
+          "monitor_modes": 24,
+          "boundary": [
+            "PML",
+            "PEC",
+            "PEC"
+          ],
+          "material_model": "Palik phase index at 1550 nm; nondispersive",
+          "domain_center_um": [
+            7.5,
+            0.19999999999999996,
+            0.0
+          ],
+          "domain_size_um": [
+            17.5,
+            4.4,
+            2.6
+          ],
+          "grid_cells": 104259584
+        },
+        "dreme": {
+          "retained_modes": 24,
+          "stability_config": {
+            "guided_loss": 2.84e-05,
+            "pml_regularization_loss": 0.00284,
+            "pml_sink_loss": 0.0084,
+            "pml_mode_sink": true,
+            "guided_rcond": 1e-05,
+            "pml_rcond": 0.001,
+            "feedback_pml_rcond": 0.001,
+            "guided_fraction_threshold": 0.8,
+            "feedback_pml_fraction_threshold": 0.8,
+            "absolute_rcond": 1e-08
+          },
+          "neff_interpolation": false,
+          "power": {
+            "P0": 1.0,
+            "P1": 0.9999413051532166,
+            "P2": 1.0039831694095007,
+            "P3": 1.0039027793822484,
+            "input_mapping": {
+              "watts": 5.869484678344694e-05,
+              "relative": 5.869484678344694e-05,
+              "reason": null
+            },
+            "output_mapping": {
+              "watts": 8.039002725235278e-05,
+              "relative": 8.007109053395258e-05,
+              "reason": null
+            },
+            "budget_closure_w": 0.0
+          },
+          "input_residuals": {
+            "E": {
+              "squared_norm": 0.15449525889664528,
+              "reference_squared_norm": 271.0261242806416,
+              "relative_squared": 0.0005700382548239845,
+              "reason": null,
+              "norm_unit": "V",
+              "warning_threshold": null
+            },
+            "H": {
+              "squared_norm": 1.590033231559096e-06,
+              "reference_squared_norm": 0.017602424482228082,
+              "relative_squared": 9.033035381940934e-05,
+              "reason": null,
+              "norm_unit": "A",
+              "warning_threshold": null
+            },
+            "context": "input node (2.5000000000000004e-07,) (645f462a89714b9e940c7fcd2144d43b:32)"
+          },
+          "input_direct_EH_residual": {
+            "E": 0.02387547391826454,
+            "H": 0.009504228207460412
+          },
+          "output_residuals": {
+            "E": {
+              "squared_norm": 0.16698014952214635,
+              "reference_squared_norm": 274.3718266920796,
+              "relative_squared": 0.0006085907271723779,
+              "reason": null,
+              "norm_unit": "V",
+              "warning_threshold": null
+            },
+            "H": {
+              "squared_norm": 1.4527222574126086e-06,
+              "reference_squared_norm": 0.01766499465704612,
+              "relative_squared": 8.223734485156804e-05,
+              "reason": null,
+              "norm_unit": "A",
+              "warning_threshold": null
+            },
+            "context": "output node (2.5000000000000004e-07,) (645f462a89714b9e940c7fcd2144d43b:32)"
+          },
+          "mapping_config": {
+            "svd_rtol": 1e-12,
+            "svd_atol": 0.0,
+            "condition_warning": 1000000000000.0,
+            "denominator_rtol": 1e-12,
+            "roundoff_rtol": 1e-12,
+            "min_reference_power_w": 0.0,
+            "e_residual_warning": null,
+            "h_residual_warning": null
+          },
+          "input_solve": {
+            "method": "solve",
+            "rank": 5,
+            "condition": 1.000539959188071,
+            "cutoff": 1.0003136545803746e-12,
+            "singular_values": [
+              1.0003136545803746,
+              1.000027288019112,
+              0.9999727553711111,
+              0.9999124845077922,
+              0.9997738175216109
+            ],
+            "equation_residual": 2.224872023966054e-16,
+            "relative_equation_residual": 9.997184665798824e-17,
+            "context": "input node (2.5000000000000004e-07,) (645f462a89714b9e940c7fcd2144d43b:32)"
+          },
+          "output_solve": {
+            "method": "solve",
+            "rank": 6,
+            "condition": 1.8407916485002704,
+            "cutoff": 1.295973989760472e-12,
+            "singular_values": [
+              1.295973989760472,
+              1.2460970129812494,
+              1.230968027058944,
+              0.7690292772711625,
+              0.7539009076862212,
+              0.7040307852419517
+            ],
+            "equation_residual": 2.2964123827039386e-16,
+            "relative_equation_residual": 9.392124426757885e-17,
+            "context": "output node (2.5000000000000004e-07,) (645f462a89714b9e940c7fcd2144d43b:32)"
+          },
+          "mapping_warnings": [],
+          "stability": {
+            "status": "normal",
+            "interface_events": [],
+            "feedback_fallbacks": [],
+            "pml_sink_mode_steps": 0
+          }
+        }
+      },
+      "grid_path": {
+        "grid_x_m": [
+          0.0,
+          7.812500000000187e-08,
+          2.3437500000000032e-07,
+          3.9062500000000145e-07,
+          5.468750000000025e-07,
+          7.03125000000001e-07,
+          8.593750000000021e-07,
+          1.0156250000000005e-06,
+          1.1718750000000018e-06,
+          1.328125e-06,
+          1.4843750000000014e-06,
+          1.6406249999999996e-06,
+          1.7968750000000007e-06,
+          1.9531250000000017e-06,
+          2.1093750000000005e-06,
+          2.2656250000000013e-06,
+          2.4218749999999996e-06,
+          2.578125000000001e-06,
+          2.734374999999999e-06,
+          2.8906250000000004e-06,
+          3.0468750000000012e-06,
+          3.2031250000000004e-06,
+          3.359375000000001e-06,
+          3.515625e-06,
+          3.6718750000000007e-06,
+          3.828124999999999e-06,
+          3.984375e-06,
+          4.1406250000000015e-06,
+          4.296874999999999e-06,
+          4.453125000000001e-06,
+          4.609374999999999e-06,
+          4.765625000000001e-06,
+          4.921874999999999e-06,
+          1.0078125e-05,
+          1.0234374999999998e-05,
+          1.0390624999999998e-05,
+          1.0546874999999997e-05,
+          1.0703125e-05,
+          1.0859374999999998e-05,
+          1.1015624999999998e-05,
+          1.1171874999999999e-05,
+          1.1328124999999998e-05,
+          1.1484375e-05,
+          1.1640624999999997e-05,
+          1.1796874999999999e-05,
+          1.1953124999999997e-05,
+          1.2109374999999998e-05,
+          1.2265624999999998e-05,
+          1.2421874999999999e-05,
+          1.2578124999999999e-05,
+          1.2734374999999998e-05,
+          1.2890624999999998e-05,
+          1.3046874999999997e-05,
+          1.3203124999999997e-05,
+          1.3359374999999998e-05,
+          1.3515624999999998e-05,
+          1.3671874999999999e-05,
+          1.3828124999999997e-05,
+          1.3984375e-05,
+          1.4140624999999996e-05,
+          1.4296874999999997e-05,
+          1.4453124999999996e-05,
+          1.4609374999999998e-05,
+          1.4765624999999998e-05,
+          1.4921874999999997e-05,
+          1.4999999999999999e-05
+        ],
+        "grid_gap_m": [
+          2.5000000000000004e-07,
+          2.46875e-07,
+          2.4375e-07,
+          2.40625e-07,
+          2.375e-07,
+          2.34375e-07,
+          2.3125e-07,
+          2.28125e-07,
+          2.2500000000000002e-07,
+          2.2187500000000002e-07,
+          2.1875000000000002e-07,
+          2.1562500000000003e-07,
+          2.125e-07,
+          2.09375e-07,
+          2.0625e-07,
+          2.0312500000000001e-07,
+          2.0000000000000002e-07,
+          1.9687500000000002e-07,
+          1.9375000000000002e-07,
+          1.90625e-07,
+          1.875e-07,
+          1.84375e-07,
+          1.8125e-07,
+          1.7812500000000002e-07,
+          1.7500000000000002e-07,
+          1.7187500000000002e-07,
+          1.6875e-07,
+          1.65625e-07,
+          1.625e-07,
+          1.59375e-07,
+          1.5625e-07,
+          1.5312500000000002e-07,
+          1.5000000000000002e-07,
+          1.5312500000000002e-07,
+          1.5625e-07,
+          1.59375e-07,
+          1.625e-07,
+          1.65625e-07,
+          1.6875e-07,
+          1.7187500000000002e-07,
+          1.7500000000000002e-07,
+          1.7812500000000002e-07,
+          1.8125e-07,
+          1.84375e-07,
+          1.875e-07,
+          1.90625e-07,
+          1.9375000000000002e-07,
+          1.9687500000000002e-07,
+          2.0000000000000002e-07,
+          2.0312500000000001e-07,
+          2.0625e-07,
+          2.09375e-07,
+          2.125e-07,
+          2.1562500000000003e-07,
+          2.1875000000000002e-07,
+          2.2187500000000002e-07,
+          2.2500000000000002e-07,
+          2.28125e-07,
+          2.3125e-07,
+          2.34375e-07,
+          2.375e-07,
+          2.40625e-07,
+          2.4375e-07,
+          2.46875e-07,
+          2.5000000000000004e-07,
+          2.5000000000000004e-07
+        ]
+      },
+      "input": {
+        "native_signed_flux_W": 0.9996243715286255,
+        "measured_signed_flux_W": 0.9996240198504893,
+        "raw_Ey_center_y_um": 0.7254581192421592,
+        "reconstructed_signed_flux_W": 0.9995880020655067,
+        "reconstructed_over_native_signed_flux": 0.9999636168703419,
+        "forward_flux_W": 0.9995954139800081,
+        "backward_flux_magnitude_W": 7.259568673497763e-06,
+        "mode_forward_power_W": 0.9996151460577697,
+        "mode_backward_power_W": 7.246531043088782e-06,
+        "raw_EH_reconstruction": {
+          "E": 0.02714180154861206,
+          "H": 0.016029810646100547
+        },
+        "target_Ey_center_y_um": 0.7250000001355008,
+        "target_EH_relative_residual_after_power_and_phase_alignment": {
+          "E": 0.02397144506937863,
+          "H": 0.00963127167678182
+        }
+      },
+      "output": {
+        "native_signed_flux_W": 0.9996495246887207,
+        "measured_signed_flux_W": 0.9996500329966755,
+        "raw_Ey_center_y_um": 0.6750224814567475,
+        "reconstructed_signed_flux_W": 0.9995300461919582,
+        "reconstructed_over_native_signed_flux": 0.999880479614293,
+        "forward_flux_W": 0.9995300690897408,
+        "backward_flux_magnitude_W": 1.700095250479297e-08,
+        "mode_forward_power_W": 0.9995394045223527,
+        "mode_backward_power_W": 1.6981850072502557e-08,
+        "raw_EH_reconstruction": {
+          "E": 0.021909408557818554,
+          "H": 0.01605686073399577
+        },
+        "projected_coherent_power_W": 0.999434107673547,
+        "projection_EH_relative_residual": {
+          "E": 0.025658046712773046,
+          "H": 0.00969135963054184
+        },
+        "projection_solve": {
+          "method": "solve",
+          "rank": 6,
+          "condition": 1.8407916485002804,
+          "cutoff": 1.295973989760475e-12,
+          "singular_values": [
+            1.2959739897604752,
+            1.2460970129812479,
+            1.2309680270589454,
+            0.7690292772711634,
+            0.7539009076862223,
+            0.7040307852419495
+          ],
+          "equation_residual": 6.947562654365352e-17,
+          "relative_equation_residual": 6.727565263734028e-17,
+          "context": "Tidy3D output projection"
+        }
+      },
+      "final_field_decay": 0.000528,
+      "stopped_below_shutoff": false
+    }
+  ],
+  "status": {
+    "mathematical_checks": "pass",
+    "FDTD_initial_comparison": "complete",
+    "quantitative_accuracy_acceptance": "not established"
+  },
+  "excluded": [
+    "Earlier tidy3d_c6_baseline has a 200 nm source shift",
+    "Lumerical FDTD is a separate pending run"
+  ],
+  "input_replay": [
+    {
+      "case": "uniform",
+      "basis_id": "645f462a89714b9e940c7fcd2144d43b:32",
+      "measured_forward_W": 0.9995940235836019,
+      "represented_guided_input_W": 0.999564186738106,
+      "measured_to_guided_fit_EH_residual": {
+        "E": 0.008391936698733267,
+        "H": 0.004582048120192908
+      },
+      "mapped_to_measured_guided_EH_residual_after_power_and_phase_alignment": {
+        "E": 0.005273310512966907,
+        "H": 0.004114537765197358
+      },
+      "scope": "Only the stored five guided coupled input modes are replayed. All 24 output modes are retained. This does not reproduce unrepresented incident fields.",
+      "uniform_exact_complex_phase_max_coefficient_error": 1.5586408350151279e-13
+    },
+    {
+      "case": "moving",
+      "basis_id": "645f462a89714b9e940c7fcd2144d43b:32",
+      "measured_forward_W": 0.9995954139800081,
+      "represented_guided_input_W": 0.9995655021639249,
+      "measured_to_guided_fit_EH_residual": {
+        "E": 0.008399352351820311,
+        "H": 0.004587387344318813
+      },
+      "mapped_to_measured_guided_EH_residual_after_power_and_phase_alignment": {
+        "E": 0.005261629862197915,
+        "H": 0.004108434930666331
+      },
+      "scope": "Only the stored five guided coupled input modes are replayed. All 24 output modes are retained. This does not reproduce unrepresented incident fields."
+    }
+  ],
+  "verification": {
+    "existing_tests": {
+      "command": "python -B -m unittest discover -s em_simulation -t .",
+      "environment": "lumeric",
+      "passed": 84,
+      "failures": 0,
+      "errors": 0,
+      "expected_warning": "guided count changes in the synthetic acquisition inventory test"
+    },
+    "legacy_bend_base_vs_current_max_fractional_power_difference": 0.0,
+    "legacy_taper_max_complex_lumped_section_difference": 2.0202871214071978e-08
+  }
+}
