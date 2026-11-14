@@ -52,7 +52,10 @@ class CoupledDatasetSettings:
             raise TypeError("fde must be an FDEConfig")
 
     def configuration(self):
-        return json.loads(json.dumps(asdict(self), allow_nan=False))
+        config = asdict(self)
+        if self.fde.coupled_pml_mode_removal is None:
+            config["fde"].pop("coupled_pml_mode_removal")
+        return json.loads(json.dumps(config, allow_nan=False))
 
     @classmethod
     def from_configuration(cls, config):

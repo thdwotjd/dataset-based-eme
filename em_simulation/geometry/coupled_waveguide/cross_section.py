@@ -20,7 +20,9 @@ class WaveguideStack:
 
     The device layer runs from the specified bottom up to bottom + thickness.
     An optional unpatterned slab occupies its lower part. A finite lower
-    cladding (BOX) requires a substrate material below it.
+    cladding (BOX) requires a substrate material below it. A finite upper
+    cladding thickness is measured above the device-layer top and requires
+    a superstrate material above that interface.
     """
 
     thickness: float
@@ -31,6 +33,8 @@ class WaveguideStack:
     slab_thickness: float = 0.0
     box_thickness: Optional[float] = None
     substrate_material_id: Optional[str] = None
+    upper_cladding_thickness: Optional[float] = None
+    superstrate_material_id: Optional[str] = None
 
     def __post_init__(self):
         for name in ("core_material_id", "upper_cladding_material_id", "lower_cladding_material_id"):
@@ -58,6 +62,21 @@ class WaveguideStack:
             raise ValueError("stack must define a finite, positive patterned core height")
         if self.slab_thickness and not bottom < slab_top:
             raise ValueError("slab must have a representable positive height")
+        if (self.upper_cladding_thickness is None) != (self.superstrate_material_id is None):
+            raise ValueError("upper_cladding_thickness and superstrate_material_id must be specified together")
+        if self.upper_cladding_thickness is not None:
+            cap = float(self.upper_cladding_thickness)
+            top = layer_top + cap
+            if not np.isfinite(top) or not layer_top < top:
+                raise ValueError("upper_cladding_thickness must define a finite, positive upper cladding layer")
+            _check_material_id(self.superstrate_material_id, "superstrate_material_id")
+            object.__setattr__(self, "upper_cladding_thickness", cap)
+
+    @property
+    def upper_cladding_top_z(self):
+        if self.upper_cladding_thickness is None:
+            return None
+        return self.device_layer_bottom_z + self.thickness + self.upper_cladding_thickness
 
 
 @dataclass(frozen=True)
@@ -130,9 +149,14 @@ class StraightGapSectionModel:
 
     def configuration(self):
         """Export the JSON-compatible model definition for dataset metadata."""
+        stack = asdict(self.stack)
+        if self.stack.upper_cladding_thickness is None:
+            # Preserve the existing v1 export for the unbounded upper cladding.
+            del stack["upper_cladding_thickness"]
+            del stack["superstrate_material_id"]
         return {
             "model_id": "straight_gap",
-            "model_version": 1,
+            "model_version": 1 if self.stack.upper_cladding_thickness is None else 2,
             "parameters": {"gap": {"unit": "m"}},
             "coordinates": {
                 "unit": "m", "propagation": "+x", "lateral": "y", "vertical": "z",
@@ -151,12 +175,18 @@ class StraightGapSectionModel:
                     "center_y": self.wg1_center_y, "placement": {"kind": "fixed"},
                 },
             },
-            "stack": asdict(self.stack),
+            "stack": stack,
         }
 
     def validate_configuration(self, stored):
         """Compare current metadata or the equivalent legacy double_waveguide v1."""
         expected = self.configuration()
+        if isinstance(stored, Mapping) and isinstance(stored.get("stack"), Mapping):
+            stored = dict(stored)
+            stored["stack"] = dict(stored["stack"])
+            for key in ("upper_cladding_thickness", "superstrate_material_id"):
+                if stored["stack"].get(key) is None:
+                    stored["stack"].pop(key, None)
         if (isinstance(stored, Mapping) and stored.get("model_id") == "double_waveguide"
                 and stored.get("model_version") == 1):
             # This version used the same placement but did not record it explicitly.

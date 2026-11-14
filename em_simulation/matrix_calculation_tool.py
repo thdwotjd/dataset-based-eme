@@ -12,7 +12,7 @@ em_simulator_path = os.path.dirname(current_directory)
 import ray
 
 
-if not ray.is_initialized():
+if not ray.is_initialized() and os.environ.get("DREME_SKIP_RAY_INIT") != "1":
     ray.init(ignore_reinit_error=True,
              runtime_env={
             "working_dir" : em_simulator_path,
@@ -624,6 +624,9 @@ def _find_nearest_unitary_3D_ray1(smatrix):
     return smatrix
 
 def _find_nearest_unitary_3D_ray2(smatrix, task_block_size = 30):
+    # Use the same nonzero-submatrix SVD without starting a Ray session.
+    if not ray.is_initialized():
+        return _find_nearest_unitary_3D(smatrix)
     smatrix2D_id_list = []  # list of list of numpy array 
     # [[np.array(), np.array(), ... , np.array()], ... , [np.array(), np.array(), ... , np.array()]]
     smatrix = deepcopy(smatrix)

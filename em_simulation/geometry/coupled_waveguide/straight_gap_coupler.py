@@ -1,5 +1,6 @@
 """Coupled geometry with a fixed axis, fixed widths, and a variable gap."""
 
+import numpy as np
 from matplotlib import pyplot as plt
 
 from ..parameter_path import build_parameter_path, validate_parameter_grid
@@ -37,6 +38,7 @@ class StraightGapCoupler(DoubleWaveguide):
             "gap", grid, gap_profile, length=length, resolution=resolution,
         )
         self._total_length = self._path.node_positions[-1]
+        self._resolution = resolution
 
     @property
     def parameter_path(self):
@@ -45,6 +47,19 @@ class StraightGapCoupler(DoubleWaveguide):
 
     def calc_total_length(self):
         return self._total_length
+
+    def continuous_parameter_values(self, positions):
+        """Return the clipped continuous gap for optional phase interpolation.
+
+        Interface overlaps still use the same snapped node path.
+        """
+        positions = np.asarray(positions, dtype=float)
+        tolerance = 128 * np.finfo(float).eps * self._total_length
+        if np.any((positions < -tolerance) | (positions > self._total_length + tolerance)):
+            raise ValueError("section position must be in the device domain")
+        positions = np.clip(positions, 0.0, self._total_length)
+        values = [self._path.values_at(float(s), "clipped") for s in positions.flat]
+        return {"gap": np.asarray(values).reshape(positions.shape)}
 
     def calc_simulation_parameters(self):
         """Return the existing EME node and inter-node distance representation."""

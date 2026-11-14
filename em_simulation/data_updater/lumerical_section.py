@@ -3,6 +3,7 @@
 from contextlib import contextmanager
 from dataclasses import dataclass
 from numbers import Integral
+from typing import Optional
 
 import numpy as np
 
@@ -18,6 +19,7 @@ class FDEConfig:
     material_bindings: dict
     candidate_counts: dict
     boundary: str
+    coupled_pml_mode_removal: Optional[bool] = None
 
     def __post_init__(self):
         wavelength = float(self.wavelength)
@@ -50,6 +52,8 @@ class FDEConfig:
         ):
             raise ValueError("candidate_counts must contain positive integer budgets, including 'coupled'")
         object.__setattr__(self, "candidate_counts", {key: int(n) for key, n in counts.items()})
+        if self.coupled_pml_mode_removal is not None and type(self.coupled_pml_mode_removal) is not bool:
+            raise ValueError("coupled_pml_mode_removal must be bool or None")
         if self.boundary not in ("Metal", "PML"):
             raise ValueError("FDE boundary must be 'Metal' or 'PML' on all transverse sides")
 
@@ -72,6 +76,8 @@ def validate_section(section, settings):
     }
     if stack.substrate_material_id is not None:
         materials.add(stack.substrate_material_id)
+    if stack.superstrate_material_id is not None:
+        materials.add(stack.superstrate_material_id)
     missing = materials - settings.material_bindings.keys()
     if missing:
         raise ValueError(f"missing MODE material bindings for {sorted(missing)}")
@@ -79,6 +85,9 @@ def validate_section(section, settings):
     layer_bottom = bottom if stack.box_thickness is None else bottom - stack.box_thickness
     if not settings.z_bounds[0] < layer_bottom <= bottom < settings.z_bounds[1]:
         raise ValueError("FDE z_bounds must enclose the device layer base and any BOX/substrate interface")
+    top = stack.upper_cladding_top_z
+    if top is not None and not settings.z_bounds[0] < top < settings.z_bounds[1]:
+        raise ValueError("FDE z_bounds must enclose the upper cladding/superstrate interface")
     y0, y1 = settings.y_bounds
     z0, z1 = settings.z_bounds
     for core in cores:
@@ -155,7 +164,10 @@ class LumericalSectionAdapter:
             layer("box", box_bottom, bottom, stack.lower_cladding_material_id, 3)
         if stack.slab_thickness:
             layer("slab", bottom, slab_top, stack.core_material_id, 1)
-        layer("upper", slab_top, upper_extent, stack.upper_cladding_material_id, 3)
+        top = stack.upper_cladding_top_z
+        layer("upper", slab_top, upper_extent if top is None else top, stack.upper_cladding_material_id, 3)
+        if top is not None:
+            layer("superstrate", top, upper_extent, stack.superstrate_material_id, 3)
 
     def prepare(self, section, guide_id=None):
         """Apply a coupled (None) or isolated layout and explicitly set the search budget."""
@@ -195,6 +207,9 @@ class LumericalSectionAdapter:
             "wavelength": self.config.wavelength, "search": "near n", "use max index": 1,
             "number of trial modes": self.config.candidate_counts[guide_id or "coupled"],
         }
+        if self.config.coupled_pml_mode_removal is not None:
+            self.analysis_properties["automatically remove pml modes"] = (
+                self.config.coupled_pml_mode_removal if guide_id is None else True)
         for name, value in self.analysis_properties.items():
             self.mode.setanalysis(name, value)
 
